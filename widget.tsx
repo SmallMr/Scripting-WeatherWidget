@@ -805,7 +805,11 @@ function MediumWidget({ model }: { model: WeatherModel }) {
   const cellWidth = Math.max(32, Math.min(42, Math.floor((widgetWidth - 24 - 18) / 7)))
 
   return (
-    <VStack alignment="leading" spacing={6} padding={12}>
+    <VStack
+      alignment="leading"
+      spacing={6}
+      padding={{ horizontal: 12, top: 12, bottom: 16 }}
+    >
       <HStack alignment="center" spacing={8}>
         <VStack alignment="leading" spacing={1}>
           <HStack spacing={5}>
@@ -1059,8 +1063,6 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
         </VStack>
       </HStack>
 
-      <Spacer />
-
       <WeekStrip date={now} />
 
       <Spacer />
@@ -1102,6 +1104,7 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
         <NextDayCard label="后天" day={dayAfter} width={(contentWidth - 16) / 2} />
       </HStack>
 
+      <Spacer />
       <Spacer />
 
       {lifeItems.length > 0 ? (
