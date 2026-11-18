@@ -4,7 +4,7 @@
 
 支持小号、中号、大号，以及锁屏圆形 / 矩形 / 行内组件；深色和浅色模式都做了适配。
 
-大号按原始 Egern 模块的结构重做：左侧是年月、日程和最近两个节气/节日，中间是实时时钟，右侧是大号日期和问候语；下方依次是本周日期、今日天气、明天/后天和生活指数。
+大号按原始 Egern 模块的结构重做：左侧是年月、日程和最近两个节气/节日，中间是湿度环形仪表，右侧是大号日期和问候语；下方依次是本周日期、今日天气、明天/后天和生活指数。整体间距按组件高度均匀分布，不会在底部留出大片空白。
 
 ![整体预览](preview/效果图.png)
 
@@ -24,7 +24,7 @@
 
 > 如果不想用 `.scripting`，也可以直接下载仓库 ZIP，把 `script.json`、`index.tsx`、`widget.tsx` 放进 Scripting 项目。
 
-大号的时钟由 Scripting 的 `Canvas` 绘制，需要 **Scripting 3.1 或更新版本**；旧版本会无法识别 `Canvas` 组件。
+大号的湿度环由 Scripting 的 `Canvas` 绘制（圆弧使用锥形渐变），需要 **Scripting 3.1 或更新版本**；旧版本会无法识别 `Canvas` 组件。
 
 ## 远程导入 / 更新
 
@@ -56,7 +56,7 @@ https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.c
 "autoUpdateInterval": 86400
 ```
 
-单位是秒。自动更新会重新下载并执行远程代码，介意供应链风险就不要开启，或者把 `remoteResource.url` 固定到某个 tag，例如 `https://github.com/SmallMr/Scripting-WeatherWidget/tree/v1.1.1`。
+单位是秒。自动更新会重新下载并执行远程代码，介意供应链风险就不要开启，或者把 `remoteResource.url` 固定到某个 tag，例如 `https://github.com/SmallMr/Scripting-WeatherWidget/tree/v1.2.0`。
 
 ## 预览
 
@@ -129,8 +129,8 @@ preview/                  预览图片和 HTML
 
 - 已通过 TSX 语法编译和 TypeScript 类型自检。
 - 已用真实接口验证海口、慈溪的实况、7 天预报、生活指数解析。
-- 大号已按原始 Egern 布局重新生成预览图；预览是 HTML 近似渲染。
-- 尚未在真实 iPhone 的 Scripting 宿主里验证最终字体、SF Symbols、时钟和间距；安装后如果排版有偏差，可以按真机截图继续调。
+- 大号已按原始 Egern 布局重新生成预览图，时钟换成湿度环并重新分配了行间距；预览是 HTML 近似渲染。
+- 尚未在真实 iPhone 的 Scripting 宿主里验证最终字体、SF Symbols、湿度环渐变和间距；安装后如果排版有偏差，可以按真机截图继续调。
 
 ## 致谢
 

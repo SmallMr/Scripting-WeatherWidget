@@ -480,12 +480,6 @@ function formatTemp(value: string | number): string {
   return Number.isInteger(number) ? String(number) : number.toFixed(1)
 }
 
-function humidityText(value: string): string {
-  const text = String(value || "").trim()
-  if (!text) return "--"
-  return text.includes("%") ? text : `${text}%`
-}
-
 function getNextTwoHolidays(): Array<{ name: string; md: string }> {
   const now = new Date()
   const year = now.getFullYear()
@@ -554,77 +548,54 @@ function getNextTwoHolidays(): Array<{ name: string; md: string }> {
   return result
 }
 
-function AnalogClock({ size }: { size: number }) {
-  const now = new Date()
-  const hour = now.getHours() % 12
-  const minute = now.getMinutes()
-  const second = now.getSeconds()
+function humidityPercent(value: string): number {
+  const number = parseFloat(String(value).replace("%", ""))
+  if (!Number.isFinite(number)) return 0
+  return Math.max(0, Math.min(100, number))
+}
+
+function HumidityGauge({ size, humidity }: { size: number; humidity: string }) {
+  const percent = humidityPercent(humidity)
+  const lineWidth = 7
 
   return (
-    <Canvas
-      frame={{ width: size, height: size }}
-      opaque={false}
-      draw={(ctx: any, canvasSize: { width: number; height: number }) => {
-        const cx = canvasSize.width / 2
-        const cy = canvasSize.height / 2
-        const radius = Math.min(cx, cy) - 3
+    <ZStack alignment="center" frame={{ width: size, height: size }}>
+      <Canvas
+        frame={{ width: size, height: size }}
+        opaque={false}
+        draw={(ctx: any, canvasSize: { width: number; height: number }) => {
+          const cx = canvasSize.width / 2
+          const cy = canvasSize.height / 2
+          const radius = Math.min(cx, cy) - lineWidth / 2 - 1
 
-        ctx.strokeStyle = "secondaryLabel"
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-        ctx.stroke()
-
-        for (let index = 0; index < 60; index++) {
-          const angle = ((index * 6 - 90) * Math.PI) / 180
-          const isHour = index % 5 === 0
-          const inner = radius - (isHour ? 7 : 4)
-          ctx.strokeStyle = "label"
-          ctx.lineWidth = isHour ? 2 : 1
-          ctx.beginPath()
-          ctx.moveTo(cx + inner * Math.cos(angle), cy + inner * Math.sin(angle))
-          ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle))
-          ctx.stroke()
-        }
-
-        ctx.fillStyle = "label"
-        ctx.font = 10
-        ctx.textAlign = "center"
-        ctx.textBaseline = "middle"
-        for (let number = 1; number <= 12; number++) {
-          const angle = ((number * 30 - 90) * Math.PI) / 180
-          const numberRadius = radius - 11
-          ctx.fillText(
-            String(number),
-            cx + numberRadius * Math.cos(angle),
-            cy + numberRadius * Math.sin(angle),
-          )
-        }
-
-        const drawHand = (angle: number, length: number, width: number, color: string) => {
-          ctx.strokeStyle = color
-          ctx.lineWidth = width
+          ctx.lineWidth = lineWidth
           ctx.lineCap = "round"
+          ctx.strokeStyle = "rgba(120,120,128,0.18)"
           ctx.beginPath()
-          ctx.moveTo(cx, cy)
-          ctx.lineTo(cx + length * Math.cos(angle), cy + length * Math.sin(angle))
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2)
           ctx.stroke()
-        }
 
-        const hourAngle = ((hour + minute / 60) * 30 - 90) * (Math.PI / 180)
-        const minuteAngle = ((minute + second / 60) * 6 - 90) * (Math.PI / 180)
-        const secondAngle = (second * 6 - 90) * (Math.PI / 180)
-
-        drawHand(hourAngle, radius * 0.47, 4, "label")
-        drawHand(minuteAngle, radius * 0.72, 3, "label")
-        drawHand(secondAngle, radius * 0.8, 1.5, C.amber)
-
-        ctx.fillStyle = C.amber
-        ctx.beginPath()
-        ctx.arc(cx, cy, 3, 0, Math.PI * 2)
-        ctx.fill()
-      }}
-    />
+          if (percent > 1) {
+            const gradient = ctx.createConicGradient(-Math.PI / 2, cx, cy)
+            gradient.addColorStop(0, "#5AC8FA")
+            gradient.addColorStop(0.55, "#0A84FF")
+            gradient.addColorStop(1, "#5E5CE6")
+            ctx.strokeStyle = gradient
+            ctx.beginPath()
+            ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * percent) / 100)
+            ctx.stroke()
+          }
+        }}
+      />
+      <VStack alignment="center" spacing={0}>
+        <Text font={23} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
+          {`${Math.round(percent)}%`}
+        </Text>
+        <Text font={10} fontWeight="semibold" foregroundStyle={C.blue} lineLimit={1}>
+          湿度
+        </Text>
+      </VStack>
+    </ZStack>
   )
 }
 
@@ -902,22 +873,42 @@ function NextDayCard({
 }
 
 function LifeChip({ item, width }: { item: LifeInfo; width: number }) {
+  const icon = lifeIcon(item.label)
   return (
     <VStack
       alignment="leading"
       spacing={2}
-      padding={{ horizontal: 8, vertical: 6 }}
+      padding={{ horizontal: 8, vertical: 8 }}
       frame={{ width }}
       background={<RoundedRectangle cornerRadius={10} fill={C.chip} />}
     >
-      <Text font={11} foregroundStyle={C.sub} lineLimit={1}>
-        {item.label}
-      </Text>
+      <HStack spacing={4}>
+        <Image
+          systemName={icon.symbol}
+          resizable
+          scaleToFit
+          frame={{ width: 11, height: 11 }}
+          foregroundStyle={icon.color}
+        />
+        <Text font={11} foregroundStyle={C.sub} lineLimit={1}>
+          {item.label}
+        </Text>
+      </HStack>
       <Text font={13} fontWeight="semibold" foregroundStyle={C.text} lineLimit={1}>
         {item.hint}
       </Text>
     </VStack>
   )
+}
+
+function lifeIcon(label: string): { symbol: string; color: string } {
+  if (label === "穿衣") return { symbol: "tshirt.fill", color: C.violet }
+  if (label === "洗车") return { symbol: "car.fill", color: C.blue }
+  if (label === "紫外线") return { symbol: "sun.max.fill", color: C.amber }
+  if (label === "感冒") return { symbol: "facemask.fill", color: C.green }
+  if (label === "雨伞") return { symbol: "umbrella.fill", color: C.blue }
+  if (label === "运动") return { symbol: "figure.run", color: C.green }
+  return { symbol: "sparkles", color: C.blue }
 }
 
 function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
@@ -940,7 +931,7 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
     : 0
 
   return (
-    <VStack alignment="leading" spacing={8} padding={12}>
+    <VStack alignment="leading" spacing={6} padding={12}>
       <HStack alignment="center" spacing={4}>
         <VStack alignment="leading" spacing={4} frame={{ width: 120 }}>
           <Text font={22} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
@@ -986,7 +977,7 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
         </VStack>
 
         <Spacer />
-        <AnalogClock size={88} />
+        <HumidityGauge size={88} humidity={model.humidity} />
         <Spacer />
 
         <VStack alignment="center" spacing={0} frame={{ width: 96 }}>
@@ -1004,7 +995,11 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
         </VStack>
       </HStack>
 
+      <Spacer />
+
       <WeekStrip date={now} />
+
+      <Spacer />
 
       <HStack alignment="center" spacing={10}>
         <Image
@@ -1031,10 +1026,12 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
             AQI {model.aqi || "--"}
           </Text>
           <Text font={12} foregroundStyle={C.sub} lineLimit={1}>
-            湿度{humidityText(model.humidity)}
+            {windText(model)}
           </Text>
         </VStack>
       </HStack>
+
+      <Spacer />
 
       <HStack alignment="center" spacing={16}>
         <NextDayCard label="明天" day={tomorrow} width={(contentWidth - 16) / 2} />
