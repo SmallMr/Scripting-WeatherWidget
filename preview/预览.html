@@ -114,6 +114,13 @@
   .darkw .l-bar.orange { background: rgba(255,159,10,.38); }
   .l-schedule span { font-size: 13px; color: var(--text); white-space: nowrap; }
   .l-gauge { width: 88px; height: 88px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .l-hero { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; }
+  .l-hero .disc {
+    width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: transparent;
+  }
+  .darkw .l-hero .disc { background: transparent; }
+  .l-hero svg { width: 62px; height: 62px; }
   .l-right { width: 96px; flex: none; display: flex; flex-direction: column; align-items: center; }
   .l-day { font-size: 68px; font-weight: 700; line-height: .92; letter-spacing: -.045em; }
   .l-greet { font-size: 14px; font-weight: 600; color: var(--sub); white-space: nowrap; margin-top: 2px; }
@@ -138,20 +145,17 @@
   .l-rightinfo span { font-size: 12px; color: var(--sub); line-height: 1.15; white-space: nowrap; }
 
   .l-next { display: flex; gap: 16px; align-items: center; height: 26px; flex: none; }
-  .l-nextcard { width: 162px; display: flex; align-items: center; gap: 6px; }
+  .l-nextcard { width: 162px; display: flex; align-items: center; justify-content: center; gap: 6px; }
   .l-nextcard .lab { font-size: 13px; color: var(--sub); white-space: nowrap; }
   .l-nextcard .val { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
   .l-nextcard svg { width: 22px; height: 22px; flex: none; }
 
   .l-spacer { flex: 1 1 auto; min-height: 0; }
-  .l-life { display: flex; gap: 6px; flex: none; height: 46px; }
+  .l-life { display: flex; gap: 6px; flex: none; height: 40px; }
   .l-lifeitem {
-    width: 79px; padding: 7px 8px; border-radius: 10px; background: var(--chip);
-    display: flex; flex-direction: column; gap: 2px;
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   }
-  .l-lifeitem .row { display: flex; align-items: center; gap: 4px; }
-  .l-lifeitem .row svg { width: 11px; height: 11px; flex: none; }
-  .l-lifeitem .lab { font-size: 11px; color: var(--sub); line-height: 1.1; }
+  .l-lifeitem .lab { font-size: 11px; color: var(--sub); line-height: 1.1; text-align: center; }
   .l-lifeitem .val { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.15; white-space: nowrap; }
 
   .note { margin: 18px 4px 0; color: #94a3b8; font-size: 11px; }
@@ -177,7 +181,11 @@
           <div class="l-schedule"><div class="l-bar green"></div><span>小雪 11-22</span></div>
           <div class="l-schedule"><div class="l-bar orange"></div><span>大雪 12-07</span></div>
         </div>
-        <div class="l-gauge" id="gauge-dark"></div>
+        <div class="l-hero"><div class="disc"><svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs><linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5AC8FA"/><stop offset="1" stop-color="#0A84FF"/></linearGradient></defs>
+          <circle cx="40" cy="19" r="11" fill="#FFB020"/>
+          <path d="M14 47h30a11 11 0 0 0 1-21.9A16 16 0 0 0 15.5 30 10 10 0 0 0 14 47z" fill="url(#cg1)"/>
+        </svg></div></div>
         <div class="l-right">
           <div class="l-day">18</div>
           <div class="l-greet">下午好！</div>
@@ -191,10 +199,6 @@
       <div class="l-spacer"></div>
 
       <div class="l-weather">
-        <svg class="l-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="15.2" cy="8.6" r="4.6" fill="#FF9500"/>
-          <path d="M6.2 18.4h10.9a3.7 3.7 0 0 0 .4-7.4 5.6 5.6 0 0 0-10.7 1.4 3.3 3.3 0 0 0-.6 6z" fill="#0A84FF"/>
-        </svg>
         <div class="l-temp">29°</div>
         <div class="l-cond">
           <div class="l-hl">30°-21°</div>
@@ -224,10 +228,10 @@
       <div class="l-spacer"></div>
 
       <div class="l-life">
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><path d="M8 3l4 2 4-2 5 3-2 4-2-1v10H7V9L5 10 3 6z" fill="#BF5AF2"/></svg><span class="lab">穿衣</span></div><span class="val">热</span></div>
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><path d="M4 13l1.6-4.2A2 2 0 0 1 7.5 7.5h9a2 2 0 0 1 1.9 1.3L20 13v5h-2v-2H6v2H4z" fill="#0A84FF"/></svg><span class="lab">洗车</span></div><span class="val">不宜</span></div>
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4" fill="#FF9500"/><g stroke="#FF9500" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></g></svg><span class="lab">紫外线</span></div><span class="val">最弱</span></div>
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><path d="M4 9c4-2 12-2 16 0v3c0 4-4 7-8 7s-8-3-8-7z" fill="#34C759"/><path d="M6.5 11.5h11M6.5 14h11" stroke="#fff" stroke-width="1.2"/></svg><span class="lab">感冒</span></div><span class="val">少发</span></div>
+        <div class="l-lifeitem"><span class="lab">穿衣</span><span class="val">热</span></div>
+        <div class="l-lifeitem"><span class="lab">洗车</span><span class="val">不宜</span></div>
+        <div class="l-lifeitem"><span class="lab">紫外线</span><span class="val">最弱</span></div>
+        <div class="l-lifeitem"><span class="lab">感冒</span><span class="val">少发</span></div>
       </div>
     </div>
     <p class="note">HTML 近似渲染，用于确认信息层级和密度；真机由 SwiftUI / SF Symbols 绘制，细节会略有差异。</p>
@@ -243,7 +247,11 @@
           <div class="l-schedule"><div class="l-bar green"></div><span>小雪 11-22</span></div>
           <div class="l-schedule"><div class="l-bar orange"></div><span>大雪 12-07</span></div>
         </div>
-        <div class="l-gauge" id="gauge-light"></div>
+        <div class="l-hero"><div class="disc"><svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5AC8FA"/><stop offset="1" stop-color="#0A84FF"/></linearGradient></defs>
+          <circle cx="40" cy="19" r="11" fill="#FFB020"/>
+          <path d="M14 47h30a11 11 0 0 0 1-21.9A16 16 0 0 0 15.5 30 10 10 0 0 0 14 47z" fill="url(#cg2)"/>
+        </svg></div></div>
         <div class="l-right">
           <div class="l-day">18</div>
           <div class="l-greet">下午好！</div>
@@ -257,10 +265,6 @@
       <div class="l-spacer"></div>
 
       <div class="l-weather">
-        <svg class="l-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="15.2" cy="8.6" r="4.6" fill="#FF9500"/>
-          <path d="M6.2 18.4h10.9a3.7 3.7 0 0 0 .4-7.4 5.6 5.6 0 0 0-10.7 1.4 3.3 3.3 0 0 0-.6 6z" fill="#0A84FF"/>
-        </svg>
         <div class="l-temp">29°</div>
         <div class="l-cond">
           <div class="l-hl">30°-21°</div>
@@ -290,10 +294,10 @@
       <div class="l-spacer"></div>
 
       <div class="l-life">
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><path d="M8 3l4 2 4-2 5 3-2 4-2-1v10H7V9L5 10 3 6z" fill="#BF5AF2"/></svg><span class="lab">穿衣</span></div><span class="val">热</span></div>
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><path d="M4 13l1.6-4.2A2 2 0 0 1 7.5 7.5h9a2 2 0 0 1 1.9 1.3L20 13v5h-2v-2H6v2H4z" fill="#0A84FF"/></svg><span class="lab">洗车</span></div><span class="val">不宜</span></div>
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4" fill="#FF9500"/><g stroke="#FF9500" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></g></svg><span class="lab">紫外线</span></div><span class="val">最弱</span></div>
-        <div class="l-lifeitem"><div class="row"><svg viewBox="0 0 24 24"><path d="M4 9c4-2 12-2 16 0v3c0 4-4 7-8 7s-8-3-8-7z" fill="#34C759"/><path d="M6.5 11.5h11M6.5 14h11" stroke="#fff" stroke-width="1.2"/></svg><span class="lab">感冒</span></div><span class="val">少发</span></div>
+        <div class="l-lifeitem"><span class="lab">穿衣</span><span class="val">热</span></div>
+        <div class="l-lifeitem"><span class="lab">洗车</span><span class="val">不宜</span></div>
+        <div class="l-lifeitem"><span class="lab">紫外线</span><span class="val">最弱</span></div>
+        <div class="l-lifeitem"><span class="lab">感冒</span><span class="val">少发</span></div>
       </div>
     </div>
     <p class="note">HTML 近似渲染，用于确认信息层级和密度；真机由 SwiftUI / SF Symbols 绘制，细节会略有差异。</p>
@@ -325,8 +329,6 @@
     ).join("")
   }
 
-  renderGauge("gauge-dark", 64)
-  renderGauge("gauge-light", 64)
   renderWeek("week-dark")
   renderWeek("week-light")
 </script>

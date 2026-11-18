@@ -1,5 +1,4 @@
 import {
-  Canvas,
   HStack,
   Image,
   Rectangle,
@@ -548,57 +547,6 @@ function getNextTwoHolidays(): Array<{ name: string; md: string }> {
   return result
 }
 
-function humidityPercent(value: string): number {
-  const number = parseFloat(String(value).replace("%", ""))
-  if (!Number.isFinite(number)) return 0
-  return Math.max(0, Math.min(100, number))
-}
-
-function HumidityGauge({ size, humidity }: { size: number; humidity: string }) {
-  const percent = humidityPercent(humidity)
-  const lineWidth = 7
-
-  return (
-    <ZStack alignment="center" frame={{ width: size, height: size }}>
-      <Canvas
-        frame={{ width: size, height: size }}
-        opaque={false}
-        draw={(ctx: any, canvasSize: { width: number; height: number }) => {
-          const cx = canvasSize.width / 2
-          const cy = canvasSize.height / 2
-          const radius = Math.min(cx, cy) - lineWidth / 2 - 1
-
-          ctx.lineWidth = lineWidth
-          ctx.lineCap = "round"
-          ctx.strokeStyle = "rgba(120,120,128,0.18)"
-          ctx.beginPath()
-          ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-          ctx.stroke()
-
-          if (percent > 1) {
-            const gradient = ctx.createConicGradient(-Math.PI / 2, cx, cy)
-            gradient.addColorStop(0, "#5AC8FA")
-            gradient.addColorStop(0.55, "#0A84FF")
-            gradient.addColorStop(1, "#5E5CE6")
-            ctx.strokeStyle = gradient
-            ctx.beginPath()
-            ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * percent) / 100)
-            ctx.stroke()
-          }
-        }}
-      />
-      <VStack alignment="center" spacing={0}>
-        <Text font={23} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
-          {`${Math.round(percent)}%`}
-        </Text>
-        <Text font={10} fontWeight="semibold" foregroundStyle={C.blue} lineLimit={1}>
-          湿度
-        </Text>
-      </VStack>
-    </ZStack>
-  )
-}
-
 /* ------------------------------------------------------------------
  * 小尺寸
  * ------------------------------------------------------------------ */
@@ -854,6 +802,7 @@ function NextDayCard({
 
   return (
     <HStack alignment="center" spacing={6} frame={{ width }}>
+      <Spacer />
       <Text font={13} foregroundStyle={C.sub} lineLimit={1}>
         {label}
       </Text>
@@ -873,42 +822,16 @@ function NextDayCard({
 }
 
 function LifeChip({ item, width }: { item: LifeInfo; width: number }) {
-  const icon = lifeIcon(item.label)
   return (
-    <VStack
-      alignment="leading"
-      spacing={2}
-      padding={{ horizontal: 8, vertical: 8 }}
-      frame={{ width }}
-      background={<RoundedRectangle cornerRadius={10} fill={C.chip} />}
-    >
-      <HStack spacing={4}>
-        <Image
-          systemName={icon.symbol}
-          resizable
-          scaleToFit
-          frame={{ width: 11, height: 11 }}
-          foregroundStyle={icon.color}
-        />
-        <Text font={11} foregroundStyle={C.sub} lineLimit={1}>
-          {item.label}
-        </Text>
-      </HStack>
+    <VStack alignment="center" spacing={2} frame={{ width }}>
+      <Text font={11} foregroundStyle={C.sub} lineLimit={1}>
+        {item.label}
+      </Text>
       <Text font={13} fontWeight="semibold" foregroundStyle={C.text} lineLimit={1}>
         {item.hint}
       </Text>
     </VStack>
   )
-}
-
-function lifeIcon(label: string): { symbol: string; color: string } {
-  if (label === "穿衣") return { symbol: "tshirt.fill", color: C.violet }
-  if (label === "洗车") return { symbol: "car.fill", color: C.blue }
-  if (label === "紫外线") return { symbol: "sun.max.fill", color: C.amber }
-  if (label === "感冒") return { symbol: "facemask.fill", color: C.green }
-  if (label === "雨伞") return { symbol: "umbrella.fill", color: C.blue }
-  if (label === "运动") return { symbol: "figure.run", color: C.green }
-  return { symbol: "sparkles", color: C.blue }
 }
 
 function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
@@ -977,7 +900,14 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
         </VStack>
 
         <Spacer />
-        <HumidityGauge size={88} humidity={model.humidity} />
+        <Image
+          systemName={icon.symbol}
+          resizable
+          scaleToFit
+          symbolRenderingMode="multicolor"
+          frame={{ width: 62, height: 62 }}
+          foregroundStyle={icon.color}
+        />
         <Spacer />
 
         <VStack alignment="center" spacing={0} frame={{ width: 96 }}>
@@ -1002,13 +932,6 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
       <Spacer />
 
       <HStack alignment="center" spacing={10}>
-        <Image
-          systemName={icon.symbol}
-          resizable
-          scaleToFit
-          frame={{ width: 36, height: 36 }}
-          foregroundStyle={icon.color}
-        />
         <Text font={36} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
           {formatTemp(model.temp)}°
         </Text>
