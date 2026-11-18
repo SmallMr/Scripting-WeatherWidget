@@ -892,7 +892,7 @@ function WeekStrip({ date }: { date: Date }) {
   monday.setDate(date.getDate() - ((date.getDay() + 6) % 7))
 
   return (
-    <HStack spacing={0} padding={{ top: 10, bottom: 2 }}>
+    <HStack spacing={0} padding={{ vertical: 6 }}>
       {labels.map((label, index) => {
         const day = new Date(monday)
         day.setDate(monday.getDate() + index)
