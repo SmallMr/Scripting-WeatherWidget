@@ -1203,7 +1203,11 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
     : 0
 
   return (
-    <VStack alignment="leading" spacing={6} padding={12}>
+    <VStack
+      alignment="leading"
+      spacing={6}
+      padding={{ horizontal: 12, top: 12, bottom: 20 }}
+    >
       <HStack alignment="center" spacing={4}>
         <VStack alignment="leading" spacing={4} frame={{ width: 120 }}>
           <Text font={22} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
