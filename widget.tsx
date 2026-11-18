@@ -1440,7 +1440,7 @@ function WidgetShell({ children }: { children?: any }) {
 
 function ErrorWidget({ message }: { message: string }) {
   return (
-    <VStack alignment="leading" spacing={6} padding={14} widgetBackground={C.bg}>
+    <VStack alignment="leading" spacing={6} padding={14}>
       <Text font={14} fontWeight="semibold" foregroundStyle={C.red} lineLimit={1}>
         天气加载失败
       </Text>
@@ -1526,7 +1526,7 @@ async function main() {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    Widget.present(<ErrorWidget message={message} />, {
+    Widget.present(<WidgetShell><ErrorWidget message={message} /></WidgetShell>, {
       policy: "after",
       date: new Date(Date.now() + 10 * 60 * 1000),
     })
