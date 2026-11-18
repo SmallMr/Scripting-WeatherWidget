@@ -77,16 +77,16 @@ https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.c
 在「编辑小组件」的参数里填：
 
 ```text
-海口
+杭州
 ```
 
 或者带问候语名字的 JSON：
 
 ```json
-{"city":"海口","name":"小明"}
+{"city":"杭州","name":"你的昵称"}
 ```
 
-不填时使用 `widget.tsx` 顶部的 `DEFAULT_CITY`，默认值是 `海口`。
+不填时使用 `widget.tsx` 顶部的 `DEFAULT_CITY`，默认值是 `杭州`（浙江）。
 
 常用城市内置了编码，其他城市会自动请求中国天气网的搜索接口。找不到城市时会显示错误卡片，不会静默回退到北京。
 
@@ -107,11 +107,11 @@ https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.c
 - 只访问 `toy1.weather.com.cn`、`d1.weather.com.cn`、`www.weather.com.cn` 三个 HTTPS 域名。
 - 只有 3 处 GET，没有 POST、上传、WebSocket、埋点、`eval` 或动态代码。
 - 不读取剪贴板、通讯录、照片、文件、钥匙串、设备标识。
-- **不使用定位**，城市来自参数，默认「海口」。
+- **不使用定位**，城市来自参数，默认「杭州」。
 
 会暴露给中国天气网的只有：公网 IP、查询的城市名，以及伪装成 iPhone Safari 的 User-Agent / Referer。这是在线天气查询无法避免的。
 
-原模块的主要风险是供应链：`script_url` 指向 GitHub 的 `main` 分支，没有固定版本或哈希，作者以后改 JS，Egern 下次刷新就可能执行新代码。本仓库把实现固化在本地，只保留天气请求，并使用 `credentials: "omit"`，不携带 Cookie。
+原模块的主要风险是供应链：`script_url` 指向 GitHub 的 `main` 分支，没有固定版本或哈希，作者以后改 JS，Egern 下次刷新就可能执行新代码。本仓库的远程地址是自己的仓库，只有仓库所有者能推送，风险主要来自账号被盗；仍建议固定到 tag，而不是跟随 `main`。天气请求使用 `credentials: "omit"`，不携带 Cookie。
 
 本项目是第三方改写，不是中国天气网或 Scripting 官方项目。不能替中国天气网或 GitHub 账号本身背书。
 
@@ -128,7 +128,7 @@ preview/                  预览图片和 HTML
 ## 已验证 / 未验证
 
 - 已通过 TSX 语法编译和 TypeScript 类型自检。
-- 已用真实接口验证海口、慈溪的实况、7 天预报、生活指数解析。
+- 已用真实接口验证杭州、慈溪的实况、7 天预报、生活指数解析。
 - 大号已按原始 Egern 布局重新生成预览图：头部中间暂时留空，明天/后天与生活指数居中，生活指数去掉了底色和图标；预览是 HTML 近似渲染。
 - 尚未在真实 iPhone 的 Scripting 宿主里验证最终字体、SF Symbols 和间距；安装后如果排版有偏差，可以按真机截图继续调。
 

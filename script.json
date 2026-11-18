@@ -2,7 +2,7 @@
   "name": "中国天气小组件",
   "icon": "cloud.sun.fill",
   "color": "rgba(10, 132, 255, 1)",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "remoteResource": {
     "url": "https://github.com/SmallMr/Scripting-WeatherWidget"
   }

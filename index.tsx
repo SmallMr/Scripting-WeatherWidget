@@ -54,13 +54,13 @@ function Page() {
 
         <Text font="headline">设置城市</Text>
         <Text font="footnote">
-          在“编辑小组件”的参数里填：海口
+          在“编辑小组件”的参数里填：杭州
         </Text>
         <Text font="footnote">
-          也可以填 JSON：{"{"}"city":"海口","name":"小明"{"}"}
+          也可以填 JSON：{"{"}"city":"杭州","name":"你的昵称"{"}"}
         </Text>
         <Text font="footnote" foregroundStyle="secondaryLabel">
-          不填参数时使用 widget.tsx 顶部 DEFAULT_CITY 的值，默认是海口。
+          不填参数时使用 widget.tsx 顶部 DEFAULT_CITY 的值，默认是杭州。
         </Text>
 
         <Text font="headline">隐私</Text>

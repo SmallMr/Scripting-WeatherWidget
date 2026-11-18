@@ -19,12 +19,12 @@ import {
  * 3. 运行 index.tsx 预览，或到桌面添加 Scripting 小组件。
  *
  * 城市可以改下面的 DEFAULT_CITY，也可以在小工具“编辑小组件”的
- * 参数里填：海口   或   {"city":"海口","name":"小明"}
+ * 参数里填：杭州   或   {"city":"杭州","name":"你的昵称"}
  *
  * 数据只来自中国天气网（weather.com.cn），不读取定位、不上传设备信息。
  * ------------------------------------------------------------------ */
 
-const DEFAULT_CITY = "海口"
+const DEFAULT_CITY = "杭州"
 const REFRESH_MINUTES = 30
 
 type DynamicColor = { light: string; dark: string }
