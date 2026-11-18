@@ -820,7 +820,10 @@ function MediumWidget({ model }: { model: WeatherModel }) {
  * ------------------------------------------------------------------ */
 
 function WeekStrip({ date }: { date: Date }) {
-  const widgetWidth = Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364
+  const widgetWidth = Math.min(
+    Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364,
+    364,
+  )
   const cellWidth = (widgetWidth - 24) / 7
   const labels = ["一", "二", "三", "四", "五", "六", "日"]
   const monday = new Date(date)
@@ -926,7 +929,10 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
   const greet = greetingFor(now.getHours())
   const greeting = name ? `${name}，${greet}！` : `${greet}！`
   const schedules = getNextTwoHolidays()
-  const widgetWidth = Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364
+  const widgetWidth = Math.min(
+    Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364,
+    364,
+  )
   const contentWidth = widgetWidth - 24
   const lifeItems = model.life.slice(0, 4)
   const lifeWidth = lifeItems.length
