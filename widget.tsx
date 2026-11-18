@@ -1,5 +1,4 @@
 import {
-  Button,
   HStack,
   Image,
   Rectangle,
@@ -10,7 +9,6 @@ import {
   Widget,
   ZStack,
 } from "scripting"
-import { RefreshWeatherIntent } from "./app_intents"
 
 /* ------------------------------------------------------------------
  * 中国天气网 · Scripting 小组件
@@ -1044,19 +1042,6 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
           ))}
         </VStack>
 
-        <Spacer />
-        <Button intent={RefreshWeatherIntent(undefined)} buttonStyle="plain">
-          <ZStack alignment="center" frame={{ width: 32, height: 32 }}>
-            <RoundedRectangle cornerRadius={16} fill={C.chip} />
-            <Image
-              systemName="arrow.clockwise"
-              resizable
-              scaleToFit
-              frame={{ width: 14, height: 14 }}
-              foregroundStyle={C.sub}
-            />
-          </ZStack>
-        </Button>
         <Spacer />
 
         <VStack alignment="center" spacing={0} frame={{ width: 96 }}>
