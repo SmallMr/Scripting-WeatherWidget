@@ -20,11 +20,19 @@
 2. 在 iPhone 的“文件”里点开这个 `.scripting` 文件，选择用 **Scripting** 打开。
 3. 打开脚本后运行一次 `index.tsx`，可以预览小 / 中 / 大号。
 4. 回到桌面：长按空白处 → 左上角 `+` → 搜索 **Scripting** → 选择尺寸 → 添加。
-5. 长按组件 → 编辑小组件 → 选择「天气日历」。
+5. 长按组件 → 编辑小组件 → 选择「天气日历」；把“交互时 / When Interacting”设为“不做任何操作”。
 
-> 如果不想用 `.scripting`，也可以直接下载仓库 ZIP，把 `script.json`、`index.tsx`、`widget.tsx` 放进 Scripting 项目。
+> 如果不想用 `.scripting`，也可以直接下载仓库 ZIP，把 `script.json`、`index.tsx`、`widget.tsx`、`app_intents.tsx` 放进 Scripting 项目。
 
 全部界面只用到常规的 SwiftUI 组件和 SF Symbols，没有依赖 Canvas 之类的额外能力。
+
+## 点击刷新
+
+组件上覆盖了一层透明刷新热区。轻点组件任意位置，会在组件扩展里直接执行 `RefreshWeatherIntent`，重新请求墨迹天气（失败时自动回退中国天气网）并刷新桌面时间线，**不会打开 Scripting**。
+
+把小组件的“交互时 / When Interacting”设为 **不做任何操作** 即可。刷新由组件内的透明 `Button` 完成，和“交互时”设置无关；“不做任何操作”只负责让热区以外的误触不打开 App。
+
+刷新逻辑在 `app_intents.tsx` 的 `RefreshWeatherIntent` 中，通过 `Widget.reloadAll()` 触发 `widget.tsx` 重新执行。选择“运行脚本”会打开 Scripting，因此不需要这样设置。
 
 ## 远程导入 / 更新
 
@@ -168,6 +176,7 @@ https://tianqi.moji.com/weather/china/zhejiang/linanqu
 script.json               Scripting 项目描述
 index.tsx                 说明页 + 尺寸预览
 widget.tsx                小组件本体
+app_intents.tsx           点击刷新的 AppIntent
 中国天气小组件.scripting   可直接导入的打包文件
 preview/                  预览图片和 HTML
 ```

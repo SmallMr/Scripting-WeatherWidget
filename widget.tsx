@@ -1,4 +1,5 @@
 import {
+  Button,
   HStack,
   Image,
   Rectangle,
@@ -9,6 +10,7 @@ import {
   Widget,
   ZStack,
 } from "scripting"
+import { RefreshWeatherIntent } from "./app_intents"
 
 /* ------------------------------------------------------------------
  * 中国天气网 · Scripting 小组件
@@ -23,6 +25,7 @@ import {
  *
  * 默认使用墨迹天气，请求失败时自动回退中国天气网。
  * source 可选 moji（默认）或 weathercn（只用中国天气网）。
+ * 轻点组件任意位置会在组件扩展内直接刷新，不打开 Scripting。
  * 不读取定位、不上传设备信息。
  * ------------------------------------------------------------------ */
 
@@ -1414,9 +1417,23 @@ function AccessoryInline({ model }: { model: WeatherModel }) {
  * ------------------------------------------------------------------ */
 
 function WidgetShell({ children }: { children?: any }) {
+  const size =
+    Widget.displaySize && Widget.displaySize.width && Widget.displaySize.height
+      ? Widget.displaySize
+      : { width: 364, height: 382 }
+
   return (
     <ZStack alignment="topLeading" widgetBackground={C.bg}>
       {children}
+      <Button
+        intent={RefreshWeatherIntent(undefined)}
+        buttonStyle="plain"
+      >
+        <Rectangle
+          fill="rgba(0,0,0,0.001)"
+          frame={{ width: size.width, height: size.height }}
+        />
+      </Button>
     </ZStack>
   )
 }

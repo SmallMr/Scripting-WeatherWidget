@@ -27,6 +27,14 @@ function Page() {
           默认使用墨迹天气，请求失败会自动回退中国天气网；都不需要 API Key。下面可以先预览三种桌面尺寸。
         </Text>
 
+        <Text font="headline">点击组件刷新</Text>
+        <Text font="footnote">
+          组件上已经加了一层透明刷新热区：轻点桌面组件任意位置，就会重新获取天气并刷新时间线，不会打开 Scripting。
+        </Text>
+        <Text font="footnote" foregroundStyle="secondaryLabel">
+          请把“交互时 / When Interacting”设为“不做任何操作”。刷新由组件内的透明按钮完成，不需要运行脚本。
+        </Text>
+
         <Button
           title="预览小号组件"
           action={() => void Widget.preview({ family: "systemSmall" })}
