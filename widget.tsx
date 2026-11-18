@@ -600,7 +600,7 @@ function lunarYearDays(year: number): number {
   return sum + lunarLeapDays(year)
 }
 
-function lunarText(date: Date): string {
+function lunarParts(date: Date): { month: number; day: number; isLeap: boolean } {
   const base = Date.UTC(1900, 0, 31)
   const utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
   let offset = Math.floor((utc - base) / 86400000)
@@ -645,7 +645,18 @@ function lunarText(date: Date): string {
     month--
   }
 
-  return `农历${isLeap ? "闰" : ""}${LUNAR_MONTHS[month - 1]}月${LUNAR_DAYS[offset]}`
+  return { month, day: offset + 1, isLeap }
+}
+
+function lunarText(date: Date): string {
+  const parts = lunarParts(date)
+  return `农历${parts.isLeap ? "闰" : ""}${LUNAR_MONTHS[parts.month - 1]}月${LUNAR_DAYS[parts.day - 1]}`
+}
+
+function lunarShort(date: Date): string {
+  const parts = lunarParts(date)
+  if (parts.day === 1) return `${parts.isLeap ? "闰" : ""}${LUNAR_MONTHS[parts.month - 1]}月`
+  return LUNAR_DAYS[parts.day - 1]
 }
 
 const SOLAR_TERMS = [
@@ -885,9 +896,10 @@ function WeekStrip({ date }: { date: Date }) {
           day.getFullYear() === date.getFullYear() &&
           day.getMonth() === date.getMonth() &&
           day.getDate() === date.getDate()
+        const lunar = solarTermName(day) || lunarShort(day)
 
         return (
-          <VStack key={label} alignment="center" spacing={1} frame={{ width: cellWidth }}>
+          <VStack key={label} alignment="center" spacing={0} frame={{ width: cellWidth }}>
             <Text font={10} foregroundStyle={C.sub} lineLimit={1}>
               {label}
             </Text>
@@ -907,6 +919,9 @@ function WeekStrip({ date }: { date: Date }) {
                 {day.getDate()}
               </Text>
             </ZStack>
+            <Text font={8} foregroundStyle={C.sub} lineLimit={1}>
+              {lunar}
+            </Text>
           </VStack>
         )
       })}
@@ -970,9 +985,6 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
   const now = new Date()
   const greet = greetingFor(now.getHours())
   const greeting = name ? `${name}，${greet}！` : `${greet}！`
-  const lunar = lunarText(now)
-  const term = solarTermName(now)
-  const lunarLine = term ? `${lunar}·${term}` : lunar
   const schedules = getNextTwoHolidays()
   const widgetWidth = Math.min(
     Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364,
@@ -1032,15 +1044,12 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
 
         <Spacer />
 
-        <VStack alignment="center" spacing={1} frame={{ width: 96 }}>
+        <VStack alignment="center" spacing={0} frame={{ width: 96 }}>
           <Text font={68} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
             {now.getDate()}
           </Text>
-          <Text font={10} foregroundStyle={C.sub} lineLimit={1}>
-            {lunarLine}
-          </Text>
           <Text
-            font={13}
+            font={14}
             fontWeight="semibold"
             foregroundStyle={C.sub}
             lineLimit={1}
