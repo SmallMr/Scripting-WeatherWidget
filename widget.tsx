@@ -900,15 +900,6 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
         </VStack>
 
         <Spacer />
-        <Image
-          systemName={icon.symbol}
-          resizable
-          scaleToFit
-          symbolRenderingMode="multicolor"
-          frame={{ width: 62, height: 62 }}
-          foregroundStyle={icon.color}
-        />
-        <Spacer />
 
         <VStack alignment="center" spacing={0} frame={{ width: 96 }}>
           <Text font={68} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
@@ -932,6 +923,13 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
       <Spacer />
 
       <HStack alignment="center" spacing={10}>
+        <Image
+          systemName={icon.symbol}
+          resizable
+          scaleToFit
+          frame={{ width: 36, height: 36 }}
+          foregroundStyle={icon.color}
+        />
         <Text font={36} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
           {formatTemp(model.temp)}°
         </Text>
