@@ -892,7 +892,7 @@ function WeekStrip({ date }: { date: Date }) {
   monday.setDate(date.getDate() - ((date.getDay() + 6) % 7))
 
   return (
-    <HStack spacing={0}>
+    <HStack spacing={0} padding={{ top: 10, bottom: 2 }}>
       {labels.map((label, index) => {
         const day = new Date(monday)
         day.setDate(monday.getDate() + index)
@@ -1065,9 +1065,7 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
 
       <WeekStrip date={now} />
 
-      <Spacer />
-
-      <HStack alignment="center" spacing={10}>
+      <HStack alignment="center" spacing={10} padding={{ trailing: 20 }}>
         <Image
           systemName={icon.symbol}
           resizable
