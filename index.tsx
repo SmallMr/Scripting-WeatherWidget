@@ -39,10 +39,17 @@ function Page() {
           title="预览大号组件"
           action={() => void Widget.preview({ family: "systemLarge" })}
         />
+        <Button
+          title="刷新桌面组件"
+          action={() => Widget.reloadAll()}
+        />
 
         <Text font="headline">添加到桌面</Text>
         <Text font="footnote">
           长按桌面空白处 → 左上角“+” → 搜索 Scripting → 选择合适尺寸 → 添加后长按组件 → 编辑小组件 → 选择“中国天气小组件”。
+        </Text>
+        <Text font="footnote" foregroundStyle="secondaryLabel">
+          改完 widget.tsx 后先保存，再运行本页并点“刷新桌面组件”，桌面上的组件会立即重建。
         </Text>
 
         <Text font="headline">设置城市</Text>
