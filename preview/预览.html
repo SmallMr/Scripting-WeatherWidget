@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中国天气小组件 · 效果预览</title>
+<style>
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+    --violet: #8b5cf6;
+    --gray: #94a3b8;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    font-family: var(--font);
+    background: #0a0f14;
+    color: #f8fafc;
+  }
+
+  body {
+    padding: 54px 44px 64px;
+    background:
+      radial-gradient(1200px 700px at 12% -10%, rgba(59, 130, 246, .20), transparent 60%),
+      radial-gradient(900px 600px at 92% 8%, rgba(139, 92, 246, .14), transparent 62%),
+      linear-gradient(160deg, #0a0f14 0%, #0d131a 46%, #0a0f14 100%);
+  }
+
+  .page { width: 1180px; margin: 0 auto; }
+
+  .hero { padding: 0 4px 38px; }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .22em;
+    color: #7dd3fc;
+    opacity: .9;
+  }
+
+  h1 {
+    margin: 12px 0 8px;
+    font-size: 46px;
+    line-height: 1.06;
+    letter-spacing: -.03em;
+    font-weight: 700;
+  }
+
+  .sub {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+
+  .chips { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .chips span {
+    font-size: 11px;
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.045);
+    border-radius: 999px;
+    padding: 5px 11px;
+  }
+
+  .showcase {
+    border-radius: 36px;
+    padding: 34px 36px 40px;
+    margin-bottom: 34px;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .showcase.dark {
+    background:
+      radial-gradient(700px 420px at 20% 0%, rgba(56, 189, 248, .12), transparent 65%),
+      radial-gradient(700px 500px at 96% 30%, rgba(168, 85, 247, .10), transparent 65%),
+      linear-gradient(150deg, #111a23 0%, #0c1219 55%, #101821 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 30px 80px rgba(0,0,0,.45);
+  }
+
+  .showcase.light {
+    background:
+      radial-gradient(760px 420px at 12% 0%, rgba(125, 211, 252, .34), transparent 62%),
+      radial-gradient(760px 480px at 92% 36%, rgba(196, 181, 253, .28), transparent 64%),
+      linear-gradient(150deg, #eaf3fc 0%, #f4f8fc 58%, #e9f1fa 100%);
+    border-color: rgba(15,23,42,.06);
+    box-shadow: 0 24px 60px rgba(30, 64, 110, .12);
+    color: #0f172a;
+  }
+
+  .sectionhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .sectionhead h2 {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: .02em;
+    font-weight: 700;
+  }
+
+  .sectionhead span {
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .light .sectionhead span { color: #64748b; }
+
+  .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    flex-wrap: nowrap;
+  }
+
+  figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  figcaption {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-left: 2px;
+  }
+
+  figcaption strong {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  figcaption span {
+    font-size: 10px;
+    color: #64748b;
+    letter-spacing: .04em;
+  }
+
+  .widget {
+    display: flex;
+    flex-direction: column;
+    color: var(--text);
+    background: var(--bg);
+    overflow: hidden;
+    position: relative;
+    flex: none;
+    box-shadow:
+      0 20px 44px rgba(0, 0, 0, .32),
+      0 2px 5px rgba(0, 0, 0, .16);
+  }
+
+  .light .widget {
+    box-shadow:
+      0 20px 42px rgba(30, 64, 110, .15),
+      0 2px 4px rgba(30, 64, 110, .08);
+  }
+
+  .darkw {
+    --bg: #0b1016;
+    --text: #f8fafc;
+    --sub: #94a3b8;
+    --card: rgba(255, 255, 255, .07);
+    --chip: rgba(255, 255, 255, .08);
+    --line: rgba(255, 255, 255, .10);
+  }
+
+  .lightw {
+    --bg: #f1f5fa;
+    --text: #0f172a;
+    --sub: #64748b;
+    --card: rgba(255, 255, 255, .78);
+    --chip: rgba(15, 23, 42, .05);
+    --line: rgba(15, 23, 42, .08);
+  }
+
+  .w-small {
+    width: 170px;
+    height: 170px;
+    border-radius: 26px;
+    padding: 13px;
+  }
+
+  .w-medium {
+    width: 364px;
+    height: 170px;
+    border-radius: 26px;
+    padding: 12px;
+  }
+
+  .w-large {
+    width: 364px;
+    height: 382px;
+    border-radius: 28px;
+    padding: 14px;
+  }
+
+  .sp { flex: 1 1 auto; }
+  .rowline { display: flex; align-items: center; }
+
+  .ic { display: block; flex: none; }
+  .i14 { width: 14px; height: 14px; }
+  .i16 { width: 16px; height: 16px; }
+  .i22 { width: 22px; height: 22px; }
+  .i26 { width: 26px; height: 26px; }
+  .i38 { width: 38px; height: 38px; }
+
+  .line {
+    width: 100%;
+    height: 1px;
+    background: var(--line);
+    flex: none;
+  }
+
+  /* 小号 */
+  .s-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+  }
+
+  .s-city {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .s-aqi {
+    font-size: 9px;
+    color: var(--sub);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .s-temprow {
+    display: flex;
+    align-items: flex-end;
+    height: 46px;
+    margin-top: 2px;
+  }
+
+  .s-temp {
+    font-size: 40px;
+    line-height: .92;
+    font-weight: 700;
+    letter-spacing: -.035em;
+  }
+
+  .s-hl {
+    text-align: right;
+    font-size: 10px;
+    line-height: 1.25;
+    color: var(--sub);
+    padding-bottom: 2px;
+  }
+
+  .s-cond {
+    font-size: 11px;
+    color: var(--sub);
+    line-height: 1.2;
+    margin-top: 3px;
+  }
+
+  .s-days {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 3px 0;
+  }
+
+  .s-day {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    line-height: 1.2;
+    height: 16px;
+  }
+
+  .s-day .wk {
+    width: 30px;
+    color: var(--sub);
+    flex: none;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .s-day .txt {
+    color: var(--text);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .s-day .lo { color: var(--sub); }
+  .s-day .hi { font-weight: 600; }
+
+  /* 中号 */
+  .m-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 62px;
+    flex: none;
+  }
+
+  .m-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .m-cityrow {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+
+  .m-city {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .m-aqi {
+    font-size: 9px;
+    color: var(--sub);
+  }
+
+  .m-sub {
+    font-size: 10px;
+    color: var(--sub);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .m-temprow {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 1px;
+  }
+
+  .m-temp {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -.03em;
+  }
+
+  .m-hl {
+    font-size: 10px;
+    color: var(--sub);
+    white-space: nowrap;
+  }
+
+  .m-divider { margin: 6px 0; }
+
+  .m-days {
+    display: flex;
+    gap: 3px;
+    flex: none;
+    height: 42px;
+  }
+
+  .m-cell {
+    width: 44px;
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .m-cell .wk {
+    font-size: 9px;
+    line-height: 1.1;
+    color: var(--sub);
+    white-space: nowrap;
+  }
+
+  .m-cell .hi {
+    font-size: 11px;
+    line-height: 1.1;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .m-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9px;
+    color: var(--sub);
+    line-height: 1.2;
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+
+  /* 大号 */
+  .l-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 30px;
+    flex: none;
+  }
+
+  .l-date {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.01em;
+  }
+
+  .l-greet {
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--sub);
+    margin-top: 1px;
+  }
+
+  .l-update {
+    font-size: 9px;
+    color: var(--sub);
+    white-space: nowrap;
+  }
+
+  .l-hero {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 10px;
+    height: 62px;
+    flex: none;
+    margin-top: 6px;
+  }
+
+  .l-hero-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .l-temprow {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+
+  .l-temp {
+    font-size: 31px;
+    line-height: .95;
+    font-weight: 700;
+    letter-spacing: -.035em;
+  }
+
+  .l-cond {
+    font-size: 12px;
+    color: var(--sub);
+    white-space: nowrap;
+  }
+
+  .l-hl {
+    font-size: 10px;
+    color: var(--sub);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .l-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 9px;
+    line-height: 1.15;
+    color: var(--sub);
+    white-space: nowrap;
+  }
+
+  .l-days {
+    display: flex;
+    flex-direction: column;
+    margin-top: 6px;
+    flex: none;
+  }
+
+  .l-day {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 11px;
+    line-height: 1.2;
+    height: 21px;
+  }
+
+  .l-day .wk {
+    width: 32px;
+    flex: none;
+    color: var(--sub);
+    white-space: nowrap;
+  }
+
+  .l-day .txt {
+    width: 62px;
+    flex: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .l-day .lo { color: var(--sub); }
+  .l-day .sep { color: var(--sub); font-size: 9px; }
+  .l-day .hi { font-weight: 600; }
+
+  .l-day .ic { width: 15px; height: 15px; }
+
+  .l-tip {
+    font-size: 9px;
+    line-height: 1.35;
+    color: var(--sub);
+    margin-top: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .l-footline {
+    height: 1px;
+    background: var(--line);
+    margin-top: auto;
+    flex: none;
+  }
+
+  .l-life {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 0;
+  }
+
+  .life {
+    width: 72px;
+    flex: none;
+    background: var(--chip);
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .life .lab {
+    font-size: 9px;
+    color: var(--sub);
+    line-height: 1.1;
+  }
+
+  .life .val {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .note {
+    margin: 22px 4px 0;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.7;
+  }
+
+  .light .note { color: #64748b; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-sun" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="12" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <line x1="32" y1="3" x2="32" y2="11"/>
+      <line x1="32" y1="53" x2="32" y2="61"/>
+      <line x1="3" y1="32" x2="11" y2="32"/>
+      <line x1="53" y1="32" x2="61" y2="32"/>
+      <line x1="11.5" y1="11.5" x2="17" y2="17"/>
+      <line x1="47" y1="47" x2="52.5" y2="52.5"/>
+      <line x1="52.5" y1="11.5" x2="47" y2="17"/>
+      <line x1="17" y1="47" x2="11.5" y2="52.5"/>
+    </g>
+  </symbol>
+  <symbol id="i-cloud" viewBox="0 0 64 64">
+    <path d="M18 51c-7.2 0-13-5.8-13-13 0-6.9 5.3-12.5 12-12.9C19 16.9 25.7 11 34 11c10.2 0 18.5 7.8 19.3 17.8C60 29.5 64 35 64 41.5 64 48.4 58.4 54 51.5 54H18z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-cloud-sun" viewBox="0 0 64 64">
+    <circle cx="45" cy="19" r="9" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+      <line x1="45" y1="3" x2="45" y2="8"/>
+      <line x1="45" y1="30" x2="45" y2="35"/>
+      <line x1="29" y1="19" x2="34" y2="19"/>
+      <line x1="56" y1="19" x2="61" y2="19"/>
+      <line x1="34" y1="8" x2="37" y2="11"/>
+      <line x1="53" y1="27" x2="56" y2="30"/>
+      <line x1="56" y1="8" x2="53" y2="11"/>
+      <line x1="37" y1="27" x2="34" y2="30"/>
+    </g>
+    <path d="M15 51c-6.6 0-12-5.4-12-12 0-6.3 4.9-11.4 11.1-11.8C15.4 19.7 22 14 30 14c9 0 16.4 6.9 17.1 15.6C52.2 30.2 56 34.7 56 40c0 6.1-5 11-11.1 11H15z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-cloud-rain" viewBox="0 0 64 64">
+    <path d="M18 45c-7.2 0-13-5.8-13-13 0-6.9 5.3-12.5 12-12.9C19 10.9 25.7 5 34 5c10.2 0 18.5 7.8 19.3 17.8C60 23.5 64 29 64 35.5 64 42.4 58.4 48 51.5 48H18z" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <line x1="21" y1="53" x2="18" y2="61"/>
+      <line x1="33" y1="53" x2="30" y2="61"/>
+      <line x1="45" y1="53" x2="42" y2="61"/>
+    </g>
+  </symbol>
+  <symbol id="i-cloud-heavyrain" viewBox="0 0 64 64">
+    <path d="M18 43c-7.2 0-13-5.8-13-13 0-6.9 5.3-12.5 12-12.9C19 8.9 25.7 3 34 3c10.2 0 18.5 7.8 19.3 17.8C60 21.5 64 27 64 33.5 64 40.4 58.4 46 51.5 46H18z" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <line x1="17" y1="51" x2="13" y2="61"/>
+      <line x1="28" y1="51" x2="24" y2="61"/>
+      <line x1="39" y1="51" x2="35" y2="61"/>
+      <line x1="50" y1="51" x2="46" y2="61"/>
+    </g>
+  </symbol>
+  <symbol id="i-cloud-bolt" viewBox="0 0 64 64">
+    <path d="M18 43c-7.2 0-13-5.8-13-13 0-6.9 5.3-12.5 12-12.9C19 8.9 25.7 3 34 3c10.2 0 18.5 7.8 19.3 17.8C60 21.5 64 27 64 33.5 64 40.4 58.4 46 51.5 46H18z" fill="currentColor"/>
+    <path d="M35 42l-9 15h7l-4 7 13-16h-7l6-6z" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <line x1="16" y1="52" x2="13" y2="60"/>
+      <line x1="50" y1="52" x2="47" y2="60"/>
+    </g>
+  </symbol>
+  <symbol id="i-cloud-fog" viewBox="0 0 64 64">
+    <path d="M18 42c-7.2 0-13-5.8-13-13 0-6.9 5.3-12.5 12-12.9C19 7.9 25.7 2 34 2c10.2 0 18.5 7.8 19.3 17.8C60 20.5 64 26 64 32.5 64 39.4 58.4 45 51.5 45H18z" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <line x1="14" y1="52" x2="50" y2="52"/>
+      <line x1="20" y1="60" x2="56" y2="60"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="page">
+  <header class="hero">
+    <div class="eyebrow">SCRIPTING WIDGET · PREVIEW</div>
+    <h1>中国天气小组件</h1>
+    <p class="sub">海口 · 2026 年 11 月 18 日 12:30 · 数据来自中国天气网</p>
+    <div class="chips">
+      <span>小号 170 × 170</span>
+      <span>中号 364 × 170</span>
+      <span>大号 364 × 382</span>
+      <span>深色 / 浅色</span>
+    </div>
+  </header>
+
+  <section class="showcase dark">
+    <div class="sectionhead">
+      <h2>深色模式</h2>
+      <span>Dark</span>
+    </div>
+    <div class="row">
+      <figure>
+        <figcaption><strong>小号</strong><span>170 × 170</span></figcaption>
+        <div class="widget w-small darkw">
+          <div class="s-head">
+            <span class="s-city">海口</span>
+            <span class="s-aqi">AQI 26</span>
+            <span class="sp"></span>
+            <svg class="ic i22" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+          </div>
+          <div class="s-temprow">
+            <span class="s-temp">29°</span>
+            <span class="sp"></span>
+            <div class="s-hl"><div>最高 30°</div><div>最低 21°</div></div>
+          </div>
+          <div class="s-cond">多云</div>
+          <div class="sp"></div>
+          <div class="line"></div>
+          <div class="s-days">
+            <div class="s-day">
+              <span class="wk">明天</span>
+              <svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+              <span class="txt">多云</span><span class="sp"></span>
+              <span class="lo">19°</span><span class="hi">23°</span>
+            </div>
+            <div class="s-day">
+              <span class="wk">后天</span>
+              <svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+              <span class="txt">多云</span><span class="sp"></span>
+              <span class="lo">18°</span><span class="hi">22°</span>
+            </div>
+          </div>
+        </div>
+      </figure>
+
+      <figure>
+        <figcaption><strong>中号</strong><span>364 × 170</span></figcaption>
+        <div class="widget w-medium darkw">
+          <div class="m-top">
+            <div class="m-left">
+              <div class="m-cityrow"><span class="m-city">海口</span><span class="m-aqi">AQI 26</span></div>
+              <div class="m-sub">多云 · 东风 1级</div>
+              <div class="m-temprow"><span class="m-temp">29°</span><span class="m-hl">H 30°&nbsp;&nbsp;L 21°</span></div>
+            </div>
+            <span class="sp"></span>
+            <svg class="ic i38" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+          </div>
+          <div class="line m-divider"></div>
+          <div class="m-days">
+            <div class="m-cell"><span class="wk">今天</span><svg class="ic i16" style="color:var(--violet)"><use href="#i-cloud-bolt"/></svg><span class="hi">30°</span></div>
+            <div class="m-cell"><span class="wk">明天</span><svg class="ic i16" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="hi">23°</span></div>
+            <div class="m-cell"><span class="wk">后天</span><svg class="ic i16" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="hi">22°</span></div>
+            <div class="m-cell"><span class="wk">周六</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">23°</span></div>
+            <div class="m-cell"><span class="wk">周日</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">28°</span></div>
+            <div class="m-cell"><span class="wk">周一</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">27°</span></div>
+            <div class="m-cell"><span class="wk">周二</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">22°</span></div>
+          </div>
+          <div class="m-foot">
+            <span>湿度 64%</span><span>降水 0mm</span><span>能见度 30km</span>
+            <span class="sp"></span><span>12:30 更新</span>
+          </div>
+        </div>
+      </figure>
+
+      <figure>
+        <figcaption><strong>大号</strong><span>364 × 382</span></figcaption>
+        <div class="widget w-large darkw">
+          <div class="l-head">
+            <div>
+              <div class="l-date">11月18日 · 周三</div>
+              <div class="l-greet">小明，中午好</div>
+            </div>
+            <div class="l-update">12:30 更新</div>
+          </div>
+          <div class="l-hero">
+            <svg class="ic i38" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+            <div class="l-hero-main">
+              <div class="l-temprow"><span class="l-temp">29°</span><span class="l-cond">多云</span></div>
+              <div class="l-hl">最高 30° · 最低 21°</div>
+            </div>
+            <span class="sp"></span>
+            <div class="l-side">
+              <span>湿度 64%</span>
+              <span>AQI 26</span>
+              <span>东风 1级</span>
+            </div>
+          </div>
+          <div class="l-days">
+            <div class="l-day"><span class="wk">今天</span><svg class="ic i14" style="color:var(--violet)"><use href="#i-cloud-bolt"/></svg><span class="txt">雷阵雨</span><span class="sp"></span><span class="lo">21°</span><span class="sep">/</span><span class="hi">30°</span></div>
+            <div class="l-day"><span class="wk">明天</span><svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="txt">多云</span><span class="sp"></span><span class="lo">19°</span><span class="sep">/</span><span class="hi">23°</span></div>
+            <div class="l-day"><span class="wk">后天</span><svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="txt">多云</span><span class="sp"></span><span class="lo">18°</span><span class="sep">/</span><span class="hi">22°</span></div>
+            <div class="l-day"><span class="wk">周六</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">小雨转多云</span><span class="sp"></span><span class="lo">20°</span><span class="sep">/</span><span class="hi">23°</span></div>
+            <div class="l-day"><span class="wk">周日</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">小雨转多云</span><span class="sp"></span><span class="lo">22°</span><span class="sep">/</span><span class="hi">28°</span></div>
+            <div class="l-day"><span class="wk">周一</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">中雨转小雨</span><span class="sp"></span><span class="lo">22°</span><span class="sep">/</span><span class="hi">27°</span></div>
+            <div class="l-day"><span class="wk">周二</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">小雨</span><span class="sp"></span><span class="lo">19°</span><span class="sep">/</span><span class="hi">22°</span></div>
+          </div>
+          <div class="l-footline"></div>
+          <div class="l-tip">今日建议 · 有降水，短时间出行不必带伞。</div>
+          <div class="l-life">
+            <div class="life"><span class="lab">穿衣</span><span class="val">热</span></div>
+            <div class="life"><span class="lab">雨伞</span><span class="val">带伞</span></div>
+            <div class="life"><span class="lab">紫外线</span><span class="val">最弱</span></div>
+            <div class="life"><span class="lab">运动</span><span class="val">较不宜</span></div>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="showcase light">
+    <div class="sectionhead">
+      <h2>浅色模式</h2>
+      <span>Light</span>
+    </div>
+    <div class="row">
+      <figure>
+        <figcaption><strong>小号</strong><span>170 × 170</span></figcaption>
+        <div class="widget w-small lightw">
+          <div class="s-head">
+            <span class="s-city">海口</span>
+            <span class="s-aqi">AQI 26</span>
+            <span class="sp"></span>
+            <svg class="ic i22" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+          </div>
+          <div class="s-temprow">
+            <span class="s-temp">29°</span>
+            <span class="sp"></span>
+            <div class="s-hl"><div>最高 30°</div><div>最低 21°</div></div>
+          </div>
+          <div class="s-cond">多云</div>
+          <div class="sp"></div>
+          <div class="line"></div>
+          <div class="s-days">
+            <div class="s-day">
+              <span class="wk">明天</span>
+              <svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+              <span class="txt">多云</span><span class="sp"></span>
+              <span class="lo">19°</span><span class="hi">23°</span>
+            </div>
+            <div class="s-day">
+              <span class="wk">后天</span>
+              <svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+              <span class="txt">多云</span><span class="sp"></span>
+              <span class="lo">18°</span><span class="hi">22°</span>
+            </div>
+          </div>
+        </div>
+      </figure>
+
+      <figure>
+        <figcaption><strong>中号</strong><span>364 × 170</span></figcaption>
+        <div class="widget w-medium lightw">
+          <div class="m-top">
+            <div class="m-left">
+              <div class="m-cityrow"><span class="m-city">海口</span><span class="m-aqi">AQI 26</span></div>
+              <div class="m-sub">多云 · 东风 1级</div>
+              <div class="m-temprow"><span class="m-temp">29°</span><span class="m-hl">H 30°&nbsp;&nbsp;L 21°</span></div>
+            </div>
+            <span class="sp"></span>
+            <svg class="ic i38" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+          </div>
+          <div class="line m-divider"></div>
+          <div class="m-days">
+            <div class="m-cell"><span class="wk">今天</span><svg class="ic i16" style="color:var(--violet)"><use href="#i-cloud-bolt"/></svg><span class="hi">30°</span></div>
+            <div class="m-cell"><span class="wk">明天</span><svg class="ic i16" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="hi">23°</span></div>
+            <div class="m-cell"><span class="wk">后天</span><svg class="ic i16" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="hi">22°</span></div>
+            <div class="m-cell"><span class="wk">周六</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">23°</span></div>
+            <div class="m-cell"><span class="wk">周日</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">28°</span></div>
+            <div class="m-cell"><span class="wk">周一</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">27°</span></div>
+            <div class="m-cell"><span class="wk">周二</span><svg class="ic i16" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="hi">22°</span></div>
+          </div>
+          <div class="m-foot">
+            <span>湿度 64%</span><span>降水 0mm</span><span>能见度 30km</span>
+            <span class="sp"></span><span>12:30 更新</span>
+          </div>
+        </div>
+      </figure>
+
+      <figure>
+        <figcaption><strong>大号</strong><span>364 × 382</span></figcaption>
+        <div class="widget w-large lightw">
+          <div class="l-head">
+            <div>
+              <div class="l-date">11月18日 · 周三</div>
+              <div class="l-greet">小明，中午好</div>
+            </div>
+            <div class="l-update">12:30 更新</div>
+          </div>
+          <div class="l-hero">
+            <svg class="ic i38" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg>
+            <div class="l-hero-main">
+              <div class="l-temprow"><span class="l-temp">29°</span><span class="l-cond">多云</span></div>
+              <div class="l-hl">最高 30° · 最低 21°</div>
+            </div>
+            <span class="sp"></span>
+            <div class="l-side">
+              <span>湿度 64%</span>
+              <span>AQI 26</span>
+              <span>东风 1级</span>
+            </div>
+          </div>
+          <div class="l-days">
+            <div class="l-day"><span class="wk">今天</span><svg class="ic i14" style="color:var(--violet)"><use href="#i-cloud-bolt"/></svg><span class="txt">雷阵雨</span><span class="sp"></span><span class="lo">21°</span><span class="sep">/</span><span class="hi">30°</span></div>
+            <div class="l-day"><span class="wk">明天</span><svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="txt">多云</span><span class="sp"></span><span class="lo">19°</span><span class="sep">/</span><span class="hi">23°</span></div>
+            <div class="l-day"><span class="wk">后天</span><svg class="ic i14" style="color:var(--amber)"><use href="#i-cloud-sun"/></svg><span class="txt">多云</span><span class="sp"></span><span class="lo">18°</span><span class="sep">/</span><span class="hi">22°</span></div>
+            <div class="l-day"><span class="wk">周六</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">小雨转多云</span><span class="sp"></span><span class="lo">20°</span><span class="sep">/</span><span class="hi">23°</span></div>
+            <div class="l-day"><span class="wk">周日</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">小雨转多云</span><span class="sp"></span><span class="lo">22°</span><span class="sep">/</span><span class="hi">28°</span></div>
+            <div class="l-day"><span class="wk">周一</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">中雨转小雨</span><span class="sp"></span><span class="lo">22°</span><span class="sep">/</span><span class="hi">27°</span></div>
+            <div class="l-day"><span class="wk">周二</span><svg class="ic i14" style="color:var(--blue)"><use href="#i-cloud-rain"/></svg><span class="txt">小雨</span><span class="sp"></span><span class="lo">19°</span><span class="sep">/</span><span class="hi">22°</span></div>
+          </div>
+          <div class="l-footline"></div>
+          <div class="l-tip">今日建议 · 有降水，短时间出行不必带伞。</div>
+          <div class="l-life">
+            <div class="life"><span class="lab">穿衣</span><span class="val">热</span></div>
+            <div class="life"><span class="lab">雨伞</span><span class="val">带伞</span></div>
+            <div class="life"><span class="lab">紫外线</span><span class="val">最弱</span></div>
+            <div class="life"><span class="lab">运动</span><span class="val">较不宜</span></div>
+          </div>
+        </div>
+      </figure>
+    </div>
+    <p class="note">这是按组件真实尺寸做的 HTML 近似预览，用于确认信息层级和疏密；实际在 iPhone 上会由 Scripting 用系统 SF Symbols 和原生字体渲染，字距、图标细节会略有差异。</p>
+  </section>
+</div>
+</body>
+</html>
