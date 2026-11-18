@@ -21,7 +21,8 @@ import {
  * 城市可以改下面的 DEFAULT_CITY，也可以在小工具“编辑小组件”的
  * 参数里填：杭州   或   {"city":"杭州","name":"你的昵称","source":"moji"}
  *
- * source 可选 weathercn（中国天气网，默认）或 moji（墨迹天气网页版）。
+ * 默认使用墨迹天气，请求失败时自动回退中国天气网。
+ * source 可选 moji（默认）或 weathercn（只用中国天气网）。
  * 不读取定位、不上传设备信息。
  * ------------------------------------------------------------------ */
 
@@ -129,7 +130,7 @@ function readConfig(): { city: string; name: string; source: WeatherSource } {
   const raw = String(Widget.parameter || "").trim()
   let city = DEFAULT_CITY
   let name = ""
-  let source: WeatherSource = "weathercn"
+  let source: WeatherSource = "moji"
 
   if (raw) {
     if (raw.startsWith("{")) {
@@ -138,7 +139,11 @@ function readConfig(): { city: string; name: string; source: WeatherSource } {
         city = String(obj.city || obj.CITY || DEFAULT_CITY).trim() || DEFAULT_CITY
         name = String(obj.name || obj.userName || "").trim()
         const selected = String(obj.source || obj.provider || "").trim().toLowerCase()
-        if (["moji", "墨迹", "墨迹天气"].includes(selected)) source = "moji"
+        if (["weathercn", "weather.com.cn", "中国天气网"].includes(selected)) {
+          source = "weathercn"
+        } else if (["moji", "墨迹", "墨迹天气"].includes(selected)) {
+          source = "moji"
+        }
       } catch (_) {
         city = raw
       }
@@ -1262,7 +1267,7 @@ function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
 
       <WeekStrip date={now} />
 
-      <HStack alignment="center" spacing={10} padding={{ trailing: 20 }}>
+      <HStack alignment="center" spacing={10} padding={{ horizontal: 8 }}>
         <Image
           systemName={icon.symbol}
           resizable
@@ -1403,6 +1408,34 @@ function ErrorWidget({ message }: { message: string }) {
   )
 }
 
+async function loadChinaWeather(cityName: string): Promise<WeatherModel> {
+  const city = await resolveCity(cityName)
+  const current = await fetchWeather(city.code)
+  const seven = await fetch7Day(city.code)
+  return buildModel(current, city.city, seven)
+}
+
+async function loadWeatherModel(config: {
+  city: string
+  source: WeatherSource
+}): Promise<WeatherModel> {
+  if (config.source === "weathercn") {
+    return await loadChinaWeather(config.city)
+  }
+
+  try {
+    return await fetchMojiWeather(config.city)
+  } catch (mojiError) {
+    try {
+      return await loadChinaWeather(config.city)
+    } catch (cnError) {
+      const mojiText = mojiError instanceof Error ? mojiError.message : String(mojiError)
+      const cnText = cnError instanceof Error ? cnError.message : String(cnError)
+      throw new Error(`墨迹天气：${mojiText}；中国天气网回退：${cnText}`)
+    }
+  }
+}
+
 /* ------------------------------------------------------------------
  * 入口
  * ------------------------------------------------------------------ */
@@ -1411,15 +1444,7 @@ async function main() {
   const config = readConfig()
 
   try {
-    let model: WeatherModel
-    if (config.source === "moji") {
-      model = await fetchMojiWeather(config.city)
-    } else {
-      const city = await resolveCity(config.city)
-      const current = await fetchWeather(city.code)
-      const seven = await fetch7Day(city.code)
-      model = buildModel(current, city.city, seven)
-    }
+    const model = await loadWeatherModel(config)
     const family = String(Widget.family)
 
     let view: any

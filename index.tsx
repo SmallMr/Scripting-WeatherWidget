@@ -24,7 +24,7 @@ function Page() {
       >
         <Text font="headline">已经可以使用了</Text>
         <Text font="footnote" foregroundStyle="secondaryLabel">
-          默认数据来自中国天气网，也可以切换墨迹天气；都不需要 API Key。下面可以先预览三种桌面尺寸。
+          默认使用墨迹天气，请求失败会自动回退中国天气网；都不需要 API Key。下面可以先预览三种桌面尺寸。
         </Text>
 
         <Button
@@ -57,10 +57,10 @@ function Page() {
           在“编辑小组件”的参数里填：杭州
         </Text>
         <Text font="footnote">
-          也可以填 JSON：{"{"}"city":"杭州","name":"你的昵称","source":"moji"{"}"}
+          也可以填 JSON：{"{"}"city":"杭州","name":"你的昵称","source":"weathercn"{"}"}
         </Text>
         <Text font="footnote" foregroundStyle="secondaryLabel">
-          source 填 moji 使用墨迹天气，填 weathercn 或不填使用中国天气网。
+          不填 source 默认用墨迹并自动回退；填 weathercn 只使用中国天气网。
         </Text>
         <Text font="footnote" foregroundStyle="secondaryLabel">
           不填参数时使用 widget.tsx 顶部 DEFAULT_CITY 的值，默认是杭州。
