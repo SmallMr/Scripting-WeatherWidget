@@ -26,6 +26,38 @@
 
 大号的时钟由 Scripting 的 `Canvas` 绘制，需要 **Scripting 3.1 或更新版本**；旧版本会无法识别 `Canvas` 组件。
 
+## 远程导入 / 更新
+
+Scripting 支持从 URL 导入脚本，也支持在 `script.json` 里配置远程更新源。本项目的远程包地址是：
+
+```text
+https://raw.githubusercontent.com/SmallMr/Scripting-WeatherWidget/main/ChinaWeatherWidget.scripting
+```
+
+在 Scripting 的「更多 → URL Scheme → 导入脚本 → 脚本 URL」里粘贴这个地址即可远程导入。也可以让 Scripting 生成一次性导入链接：
+
+```text
+https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.com/SmallMr/Scripting-WeatherWidget/main/ChinaWeatherWidget.scripting"]
+```
+
+把上面的 JSON 数组做 URL 编码后再放进 `urls` 参数即可；`scripting://import_scripts?urls=...` 也是同样的格式。
+
+`script.json` 已配置：
+
+```json
+"remoteResource": {
+  "url": "https://github.com/SmallMr/Scripting-WeatherWidget"
+}
+```
+
+默认**不会自动覆盖本地版本**。如果希望 Scripting 定期检查并自动更新，可以再加：
+
+```json
+"autoUpdateInterval": 86400
+```
+
+单位是秒。自动更新会重新下载并执行远程代码，介意供应链风险就不要开启，或者把 `remoteResource.url` 固定到某个 tag，例如 `https://github.com/SmallMr/Scripting-WeatherWidget/tree/v1.1.1`。
+
 ## 预览
 
 | 小号 | 中号 | 大号 |
