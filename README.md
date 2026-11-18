@@ -105,6 +105,22 @@ https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.c
 
 不写 `source` 时先请求墨迹天气；墨迹的城市搜索、实况或预报任一环节失败，都会自动回退到中国天气网。显式填 `weathercn` 时不会先请求墨迹。
 
+### 确认墨迹是否支持某地
+
+在浏览器里打开墨迹的城市搜索接口，把城市名放在最后：
+
+```text
+https://tianqi.moji.com/api/citysearch/临安区
+```
+
+如果返回的 JSON 里有 `cityId`，说明墨迹支持该地。例如临安区返回 `cityId: 1190`，对应页面是：
+
+```text
+https://tianqi.moji.com/weather/china/zhejiang/linanqu
+```
+
+参数里填 `临安`、`临安区` 或 `浙江省杭州市临安区` 都可以；新版会优先匹配行政区名称，不会再把“临安”误选成安徽“临泉县”。
+
 ## 数据与刷新
 
 中国天气网：

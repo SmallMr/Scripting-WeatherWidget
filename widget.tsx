@@ -455,6 +455,32 @@ function parseMojiForecast(html: string): DayInfo[] {
   }))
 }
 
+function mojiCityTerms(name: string): string[] {
+  const terms = new Set<string>()
+  const compact = name.replace(/\s+/g, "")
+  terms.add(compact)
+  terms.add(compact.replace(/(特别行政区|自治区|自治州|自治县|省|市|区|县|旗)$/, ""))
+
+  const parts = compact.split(/(?:特别行政区|自治区|自治州|自治县|省|市|区|县|旗)/).filter(Boolean)
+  if (parts.length > 1) terms.add(parts[parts.length - 1])
+  return [...terms].filter(Boolean)
+}
+
+function mojiCityScore(name: string, itemName: string): number {
+  const found = itemName.trim()
+  const foundBase = found.replace(/(特别行政区|自治区|自治州|自治县|省|市|区|县|旗)$/, "")
+  let best = 0
+
+  for (const term of mojiCityTerms(name)) {
+    const base = term.replace(/(特别行政区|自治区|自治州|自治县|省|市|区|县|旗)$/, "")
+    if (found === term) best = Math.max(best, 100)
+    if (base && base === foundBase) best = Math.max(best, 95)
+    if (base.length >= 2 && foundBase.startsWith(base)) best = Math.max(best, 80)
+    if (base.length >= 2 && base.startsWith(foundBase)) best = Math.max(best, 75)
+  }
+  return best
+}
+
 async function fetchMojiWeather(rawCity: string): Promise<WeatherModel> {
   const name = rawCity.trim()
   if (!name) throw new Error("请填写城市名")
@@ -471,17 +497,17 @@ async function fetchMojiWeather(rawCity: string): Promise<WeatherModel> {
     const list: any[] = Array.isArray(data.city_list) ? data.city_list : []
     if (list.length === 0) throw new Error(`墨迹天气未找到城市「${name}」`)
 
-    const stripped = name.replace(/市$/, "")
     const candidates = list.filter(
       (item) => !(Array.isArray(item.city_lable) && item.city_lable.some((tag: any) => tag.name === "景点")),
     )
-    const city =
-      candidates.find((item) => {
-        const found = String(item.name || "")
-        return found === name || found === `${stripped}市` || found === stripped
-      }) ||
-      candidates[0] ||
-      list[0]
+    const ranked = (candidates.length ? candidates : list)
+      .map((item, index) => ({
+        item,
+        index,
+        score: mojiCityScore(name, String(item.name || "")),
+      }))
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+    const city = ranked[0].item
 
     cityId = String(city.cityId || "")
     cityName = String(city.name || name).replace(/市$/, "")
