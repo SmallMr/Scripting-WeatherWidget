@@ -1,6 +1,6 @@
 # 中国天气 · Scripting 小组件
 
-把原来的 Egern 天气模块改写成 **Scripting App** 的 TSX 小组件。数据来自中国天气网，不需要 API Key。
+把原来的 Egern 天气模块改写成 **Scripting App** 的 TSX 小组件。数据默认来自中国天气网，也可以切换为墨迹天气网页版，都不需要 API Key。
 
 支持小号、中号、大号，以及锁屏圆形 / 矩形 / 行内组件；深色和浅色模式都做了适配。
 
@@ -90,17 +90,41 @@ https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.c
 
 常用城市内置了编码，其他城市会自动请求中国天气网的搜索接口。找不到城市时会显示错误卡片，不会静默回退到北京。
 
+## 数据源选择
+
+默认使用中国天气网。想换成墨迹天气，在参数里加 `source`：
+
+```json
+{"city":"杭州","source":"moji","name":"你的昵称"}
+```
+
+`source` 支持这些写法：
+
+- `weathercn`：中国天气网，默认值。
+- `moji` / `墨迹` / `墨迹天气`：墨迹天气网页版。
+
+不写 `source` 就继续用中国天气网。切换后城市搜索、实况、7 天预报和生活指数都会走对应站点，不会在两个来源之间混用。
+
 ## 数据与刷新
+
+中国天气网：
 
 - 实况：`https://d1.weather.com.cn/weather_index/{城市编码}.html`
 - 7 天预报：`https://www.weather.com.cn/weather/{城市编码}.shtml`
 - 城市搜索：`https://toy1.weather.com.cn/search?cityname={城市名}`
 
+墨迹天气：
+
+- 城市搜索：`https://tianqi.moji.com/api/citysearch/{城市名}`
+- 城市跳转：`https://tianqi.moji.com/api/redirect/{城市 ID}`
+- 实况与生活指数：`https://tianqi.moji.com/weather/china/{省}/{市}`
+- 7 天预报：`https://tianqi.moji.com/forecast7/china/{省}/{市}`
+
 农历和节气都在本地计算，不联网：农历使用 1900–2100 年的标准农历表（含闰月），节气使用 1900 年起的分钟偏移近似算法。
 
 请求超时 10 秒，刷新策略是 30 分钟后请求下一次。iOS 的 WidgetKit 会自行决定实际刷新时刻，可能晚于 30 分钟。
 
-这是网页数据解析，不是官方开放 API。中国天气网改版后，字段可能需要跟着调整。
+两组都是网页数据解析，不是官方开放 API。站点改版后，字段可能需要跟着调整。
 
 ## 隐私与安全
 
@@ -111,9 +135,14 @@ https://www.scripting.fun/import_scripts/?urls=["https://raw.githubusercontent.c
 - 不读取剪贴板、通讯录、照片、文件、钥匙串、设备标识。
 - **不使用定位**，城市来自参数，默认「杭州」。
 
-会暴露给中国天气网的只有：公网 IP、查询的城市名，以及伪装成 iPhone Safari 的 User-Agent / Referer。这是在线天气查询无法避免的。
+本组件只访问当前所选数据源的域名，不会同时请求两边：
 
-原模块的主要风险是供应链：`script_url` 指向 GitHub 的 `main` 分支，没有固定版本或哈希，作者以后改 JS，Egern 下次刷新就可能执行新代码。本仓库的远程地址是自己的仓库，只有仓库所有者能推送，风险主要来自账号被盗；仍建议固定到 tag，而不是跟随 `main`。天气请求使用 `credentials: "omit"`，不携带 Cookie。
+- 中国天气网模式：`toy1.weather.com.cn`、`d1.weather.com.cn`、`www.weather.com.cn`。
+- 墨迹模式：`tianqi.moji.com`。
+
+会暴露给天气站的只有：公网 IP、查询的城市名，以及伪装成 iPhone Safari 的 User-Agent / Referer。这是在线天气查询无法避免的。
+
+原模块的主要风险是供应链：`script_url` 指向 GitHub 的 `main` 分支，没有固定版本或哈希，作者以后改 JS，Egern 下次刷新就可能执行新代码。本仓库的远程地址是自己的仓库，只有仓库所有者能推送，风险主要来自账号被盗；仍建议固定到 tag，而不是跟随 `main`。天气请求使用 `credentials: "omit"`，不携带 Cookie；不使用定位，城市只来自参数。
 
 本项目是第三方改写，不是中国天气网或 Scripting 官方项目。不能替中国天气网或 GitHub 账号本身背书。
 
@@ -131,6 +160,7 @@ preview/                  预览图片和 HTML
 
 - 已通过 TSX 语法编译和 TypeScript 类型自检。
 - 已用真实接口验证杭州、慈溪的实况、7 天预报、生活指数解析。
+- 已用真实页面验证墨迹天气的杭州实况、7 天预报、AQI 和生活指数，并分别跑通 `weathercn` / `moji` 两种完整组件渲染。
 - 大号已按原始 Egern 布局重新生成预览图：头部中间暂时留空，明天/后天与生活指数居中，生活指数去掉了底色和图标；预览是 HTML 近似渲染。
 - 尚未在真实 iPhone 的 Scripting 宿主里验证最终字体、SF Symbols 和间距；安装后如果排版有偏差，可以按真机截图继续调。
 

@@ -19,13 +19,15 @@ import {
  * 3. 运行 index.tsx 预览，或到桌面添加 Scripting 小组件。
  *
  * 城市可以改下面的 DEFAULT_CITY，也可以在小工具“编辑小组件”的
- * 参数里填：杭州   或   {"city":"杭州","name":"你的昵称"}
+ * 参数里填：杭州   或   {"city":"杭州","name":"你的昵称","source":"moji"}
  *
- * 数据只来自中国天气网（weather.com.cn），不读取定位、不上传设备信息。
+ * source 可选 weathercn（中国天气网，默认）或 moji（墨迹天气网页版）。
+ * 不读取定位、不上传设备信息。
  * ------------------------------------------------------------------ */
 
 const DEFAULT_CITY = "杭州"
 const REFRESH_MINUTES = 30
+type WeatherSource = "weathercn" | "moji"
 
 type DynamicColor = { light: string; dark: string }
 
@@ -114,14 +116,20 @@ const HTTP_HEADERS = {
   "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1",
 }
 
+const MOJI_HEADERS = {
+  "Referer": "https://tianqi.moji.com/",
+  "User-Agent": HTTP_HEADERS["User-Agent"],
+}
+
 /* ------------------------------------------------------------------
  * 配置
  * ------------------------------------------------------------------ */
 
-function readConfig(): { city: string; name: string } {
+function readConfig(): { city: string; name: string; source: WeatherSource } {
   const raw = String(Widget.parameter || "").trim()
   let city = DEFAULT_CITY
   let name = ""
+  let source: WeatherSource = "weathercn"
 
   if (raw) {
     if (raw.startsWith("{")) {
@@ -129,6 +137,8 @@ function readConfig(): { city: string; name: string } {
         const obj = JSON.parse(raw)
         city = String(obj.city || obj.CITY || DEFAULT_CITY).trim() || DEFAULT_CITY
         name = String(obj.name || obj.userName || "").trim()
+        const selected = String(obj.source || obj.provider || "").trim().toLowerCase()
+        if (["moji", "墨迹", "墨迹天气"].includes(selected)) source = "moji"
       } catch (_) {
         city = raw
       }
@@ -137,7 +147,7 @@ function readConfig(): { city: string; name: string } {
     }
   }
 
-  return { city, name }
+  return { city, name, source }
 }
 
 /* ------------------------------------------------------------------
@@ -160,10 +170,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   })
 }
 
-async function getText(url: string): Promise<string> {
+async function getResponse(
+  url: string,
+  headers: Record<string, string> = HTTP_HEADERS,
+): Promise<Response> {
   const response = await withTimeout(
     fetch(url, {
-      headers: HTTP_HEADERS,
+      headers,
       credentials: "omit",
     }),
     10000,
@@ -171,6 +184,14 @@ async function getText(url: string): Promise<string> {
   if (response.status !== 200) {
     throw new Error(`天气接口 HTTP ${response.status}`)
   }
+  return response
+}
+
+async function getText(
+  url: string,
+  headers: Record<string, string> = HTTP_HEADERS,
+): Promise<string> {
+  const response = await getResponse(url, headers)
   return await response.text()
 }
 
@@ -329,6 +350,178 @@ async function fetch7Day(code: string): Promise<DayInfo[] | null> {
 }
 
 /* ------------------------------------------------------------------
+ * 墨迹天气网页版
+ * ------------------------------------------------------------------ */
+
+function cleanHtmlText(value: string): string {
+  return String(value || "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function parseMojiCurrent(html: string): {
+  temp: string
+  weather: string
+  time: string
+  humidity: string
+  windDir: string
+  windScale: string
+  aqi: string
+} {
+  const currentBlock =
+    (html.match(/<div class="wea_weather[^"]*">([\s\S]*?)<\/div>/) || [])[1] || ""
+  const aboutBlock =
+    (html.match(/<div class="wea_about[^"]*">([\s\S]*?)<\/div>/) || [])[1] || ""
+  const alertBlock =
+    (html.match(/<div class="wea_alert[^"]*">([\s\S]*?)<div class="wea_weather/) || [])[1] || ""
+  const windRaw = cleanHtmlText((aboutBlock.match(/<em>([^<]+)<\/em>/) || [])[1] || "")
+  const wind = windRaw.match(/^(.+?)\s*(\d+级)$/)
+
+  return {
+    temp: cleanHtmlText((currentBlock.match(/<em>([^<]+)<\/em>/) || [])[1] || ""),
+    weather: cleanHtmlText((currentBlock.match(/<b>([^<]+)<\/b>/) || [])[1] || ""),
+    time: (currentBlock.match(/(\d{1,2}:\d{2})更新/) || [])[1] || "",
+    humidity: cleanHtmlText((aboutBlock.match(/<span>湿度\s*([^<]+)<\/span>/) || [])[1] || ""),
+    windDir: wind ? cleanHtmlText(wind[1]) : windRaw,
+    windScale: wind ? wind[2] : "",
+    aqi: (alertBlock.match(/<em>\s*(\d+)\s+[^<]*<\/em>/) || [])[1] || "",
+  }
+}
+
+function parseMojiLife(html: string): LifeInfo[] {
+  const values = new Map<string, string>()
+  for (const item of html.matchAll(/<dt>([^<]+)<\/dt>\s*<dd>([^<]+)<\/dd>/g)) {
+    values.set(cleanHtmlText(item[2]), cleanHtmlText(item[1]))
+  }
+
+  const specs = ["穿衣", "洗车", "紫外线", "感冒", "雨伞", "运动"]
+  const life: LifeInfo[] = []
+  for (const label of specs) {
+    const hint = values.get(label)
+    if (hint) life.push({ label, hint, des: "" })
+  }
+  return life
+}
+
+function parseMojiForecast(html: string): DayInfo[] {
+  const list =
+    (html.match(/<div class="wea_list clearfix wea_list_seven">([\s\S]*?)<\/ul>/) || [])[1] || ""
+  const items = [...list.matchAll(/<li\b([^>]*)>([\s\S]*?)<\/li>/g)].map((item) => {
+    const body = item[2]
+    const weeks = [...body.matchAll(/<span class="week">([^<]+)<\/span>/g)].map((match) =>
+      cleanHtmlText(match[1]),
+    )
+    const weather = [...body.matchAll(/<span class="wea">([^<]+)<\/span>/g)].map((match) =>
+      cleanHtmlText(match[1]),
+    )
+
+    return {
+      active: /class="active"/.test(item[1]),
+      week: weeks[0] || "",
+      date: weeks[weeks.length - 1] || "",
+      textDay: weather[0] || "",
+      textNight: weather[1] || "",
+      tempMax: cleanHtmlText((body.match(/<b>([^<]+)<\/b>/) || [])[1] || "").replace("°", ""),
+      tempMin: cleanHtmlText((body.match(/<strong>([^<]+)<\/strong>/) || [])[1] || "").replace(
+        "°",
+        "",
+      ),
+    }
+  })
+
+  const start = items.findIndex((item) => item.active)
+  const ordered = start >= 0 ? items.slice(start) : items
+  return ordered.slice(0, 7).map((item) => ({
+    date: item.date,
+    week: item.week,
+    tempMax: item.tempMax,
+    tempMin: item.tempMin,
+    codeDay: "",
+    codeNight: "",
+    textDay: item.textDay,
+    textNight: item.textNight,
+    windDay: "",
+    windNight: "",
+  }))
+}
+
+async function fetchMojiWeather(rawCity: string): Promise<WeatherModel> {
+  const name = rawCity.trim()
+  if (!name) throw new Error("请填写城市名")
+
+  let cityId = /^\d+$/.test(name) ? name : ""
+  let cityName = name
+
+  if (!cityId) {
+    const text = await getText(
+      `https://tianqi.moji.com/api/citysearch/${encodeURIComponent(name)}`,
+      MOJI_HEADERS,
+    )
+    const data = JSON.parse(text)
+    const list: any[] = Array.isArray(data.city_list) ? data.city_list : []
+    if (list.length === 0) throw new Error(`墨迹天气未找到城市「${name}」`)
+
+    const stripped = name.replace(/市$/, "")
+    const candidates = list.filter(
+      (item) => !(Array.isArray(item.city_lable) && item.city_lable.some((tag: any) => tag.name === "景点")),
+    )
+    const city =
+      candidates.find((item) => {
+        const found = String(item.name || "")
+        return found === name || found === `${stripped}市` || found === stripped
+      }) ||
+      candidates[0] ||
+      list[0]
+
+    cityId = String(city.cityId || "")
+    cityName = String(city.name || name).replace(/市$/, "")
+    if (!cityId) throw new Error(`墨迹天气未找到城市「${name}」`)
+  }
+
+  const page = await getResponse(`https://tianqi.moji.com/api/redirect/${cityId}`, MOJI_HEADERS)
+  const html = await page.text()
+  const finalUrl = String(page.url || "")
+  const forecastLink = html.match(/https:\/\/tianqi\.moji\.com\/forecast7\/[^"]+/)
+  const forecastUrl = forecastLink
+    ? forecastLink[0]
+    : finalUrl.includes("/weather/")
+      ? finalUrl.replace("/weather/", "/forecast7/")
+      : ""
+  if (!forecastUrl) throw new Error("墨迹天气城市页跳转失败")
+
+  const forecast = await getText(forecastUrl, MOJI_HEADERS)
+  const daily = parseMojiForecast(forecast)
+  if (daily.length < 3) throw new Error("墨迹天气 7 天预报解析失败")
+
+  const current = parseMojiCurrent(html)
+  if (!current.temp || !current.weather) throw new Error("墨迹天气实况解析失败")
+
+  return {
+    city: cityName,
+    date: "",
+    time: current.time,
+    temp: current.temp,
+    weather: current.weather,
+    windDir: current.windDir,
+    windScale: current.windScale,
+    humidity: current.humidity,
+    pressure: "",
+    rain: "",
+    aqi: current.aqi,
+    vis: "",
+    todayMax: daily[0].tempMax,
+    todayMin: daily[0].tempMin,
+    daily,
+    life: parseMojiLife(html),
+  }
+}
+
+/* ------------------------------------------------------------------
  * 数据整理
  * ------------------------------------------------------------------ */
 
@@ -452,6 +645,10 @@ function iconForCode(code: string): { symbol: string; color: string } {
     return { symbol: "cloud.fog.fill", color: "#94A3B8" }
   }
   return { symbol: "cloud.fill", color: "#94A3B8" }
+}
+
+function iconForDay(day: DayInfo): { symbol: string; color: string } {
+  return day.codeDay ? iconForCode(day.codeDay) : iconForText(day.textDay)
 }
 
 function roundTemp(value: string | number): string {
@@ -691,7 +888,7 @@ function solarTermName(date: Date): string {
  * ------------------------------------------------------------------ */
 
 function MiniDayRow({ day }: { day: DayInfo }) {
-  const icon = iconForCode(day.codeDay)
+  const icon = iconForDay(day)
   return (
     <HStack spacing={5}>
       <Text font={10} foregroundStyle={C.sub} lineLimit={1} frame={{ width: 30 }}>
@@ -777,7 +974,7 @@ function SmallWidget({ model }: { model: WeatherModel }) {
  * ------------------------------------------------------------------ */
 
 function DayCell({ day, width }: { day: DayInfo; width: number }) {
-  const icon = iconForCode(day.codeDay)
+  const icon = iconForDay(day)
   return (
     <VStack alignment="center" spacing={2} frame={{ width }}>
       <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
@@ -863,7 +1060,7 @@ function MediumWidget({ model }: { model: WeatherModel }) {
           湿度 {model.humidity || "—"}
         </Text>
         <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
-          降水 {model.rain || "0"}mm
+          降水 {model.rain ? `${model.rain}mm` : "—"}
         </Text>
         <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
           能见度 {model.vis || "—"}
@@ -945,7 +1142,7 @@ function NextDayCard({
   if (!day) {
     return <HStack frame={{ width }} />
   }
-  const icon = iconForCode(day.codeDay)
+  const icon = iconForDay(day)
 
   return (
     <HStack alignment="center" spacing={6} frame={{ width }}>
@@ -1200,7 +1397,7 @@ function ErrorWidget({ message }: { message: string }) {
       </Text>
       <Spacer />
       <Text font={9} foregroundStyle={C.sub} lineLimit={2}>
-        长按小组件 → 编辑小组件 → 检查城市参数
+        长按小组件 → 编辑小组件 → 检查城市和 source 参数
       </Text>
     </VStack>
   )
@@ -1214,10 +1411,15 @@ async function main() {
   const config = readConfig()
 
   try {
-    const city = await resolveCity(config.city)
-    const current = await fetchWeather(city.code)
-    const seven = await fetch7Day(city.code)
-    const model = buildModel(current, city.city, seven)
+    let model: WeatherModel
+    if (config.source === "moji") {
+      model = await fetchMojiWeather(config.city)
+    } else {
+      const city = await resolveCity(config.city)
+      const current = await fetchWeather(city.code)
+      const seven = await fetch7Day(city.code)
+      model = buildModel(current, city.city, seven)
+    }
     const family = String(Widget.family)
 
     let view: any
