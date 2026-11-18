@@ -14,7 +14,7 @@ import {
  * 中国天气网 · Scripting 小组件
  *
  * 使用方法：
- * 1. 在 Scripting 中新建脚本项目「中国天气小组件」；
+ * 1. 在 Scripting 中新建脚本项目「天气日历」；
  * 2. 把本目录的 script.json、index.tsx、widget.tsx 放进项目；
  * 3. 运行 index.tsx 预览，或到桌面添加 Scripting 小组件。
  *

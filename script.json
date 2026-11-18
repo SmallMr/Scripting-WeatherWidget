@@ -1,8 +1,8 @@
 {
-  "name": "中国天气小组件",
+  "name": "天气日历",
   "icon": "cloud.sun.fill",
   "color": "rgba(10, 132, 255, 1)",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "remoteResource": {
     "url": "https://github.com/SmallMr/Scripting-WeatherWidget"
   }

@@ -1,4 +1,4 @@
-# 中国天气 · Scripting 小组件
+# 天气日历 · Scripting 小组件
 
 把原来的 Egern 天气模块改写成 **Scripting App** 的 TSX 小组件。默认使用墨迹天气网页版，请求失败会自动回退中国天气网，都不需要 API Key。
 
@@ -20,7 +20,7 @@
 2. 在 iPhone 的“文件”里点开这个 `.scripting` 文件，选择用 **Scripting** 打开。
 3. 打开脚本后运行一次 `index.tsx`，可以预览小 / 中 / 大号。
 4. 回到桌面：长按空白处 → 左上角 `+` → 搜索 **Scripting** → 选择尺寸 → 添加。
-5. 长按组件 → 编辑小组件 → 选择「中国天气小组件」。
+5. 长按组件 → 编辑小组件 → 选择「天气日历」。
 
 > 如果不想用 `.scripting`，也可以直接下载仓库 ZIP，把 `script.json`、`index.tsx`、`widget.tsx` 放进 Scripting 项目。
 

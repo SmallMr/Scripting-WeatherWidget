@@ -14,7 +14,7 @@ function Page() {
   return (
     <NavigationStack>
       <List
-        navigationTitle="中国天气小组件"
+        navigationTitle="天气日历"
         navigationBarTitleDisplayMode="inline"
         toolbar={{
           cancellationAction: (
@@ -46,7 +46,7 @@ function Page() {
 
         <Text font="headline">添加到桌面</Text>
         <Text font="footnote">
-          长按桌面空白处 → 左上角“+” → 搜索 Scripting → 选择合适尺寸 → 添加后长按组件 → 编辑小组件 → 选择“中国天气小组件”。
+          长按桌面空白处 → 左上角“+” → 搜索 Scripting → 选择合适尺寸 → 添加后长按组件 → 编辑小组件 → 选择“天气日历”。
         </Text>
         <Text font="footnote" foregroundStyle="secondaryLabel">
           改完 widget.tsx 后先保存，再运行本页并点“刷新桌面组件”，桌面上的组件会立即重建。
