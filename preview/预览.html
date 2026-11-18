@@ -114,6 +114,12 @@
   .darkw .l-bar.orange { background: rgba(255,159,10,.38); }
   .l-schedule span { font-size: 13px; color: var(--text); white-space: nowrap; }
   .l-gauge { width: 88px; height: 88px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .l-refreshwrap { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; }
+  .l-refresh {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--chip);
+    display: flex; align-items: center; justify-content: center; color: var(--sub);
+  }
+  .l-refresh svg { width: 14px; height: 14px; }
   .l-hero { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; }
   .l-hero .disc {
     width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -182,7 +188,10 @@
           <div class="l-schedule"><div class="l-bar green"></div><span>小雪 11-22</span></div>
           <div class="l-schedule"><div class="l-bar orange"></div><span>大雪 12-07</span></div>
         </div>
-        <div style="flex:1"></div>
+        <div class="l-refreshwrap"><div class="l-refresh"><svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5a7 7 0 1 1-6.6 4.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M5 4.5v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg></div></div>
         <div class="l-right">
           <div class="l-day">18</div>
           <div class="l-greet">下午好！</div>
@@ -248,7 +257,10 @@
           <div class="l-schedule"><div class="l-bar green"></div><span>小雪 11-22</span></div>
           <div class="l-schedule"><div class="l-bar orange"></div><span>大雪 12-07</span></div>
         </div>
-        <div style="flex:1"></div>
+        <div class="l-refreshwrap"><div class="l-refresh"><svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5a7 7 0 1 1-6.6 4.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M5 4.5v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg></div></div>
         <div class="l-right">
           <div class="l-day">18</div>
           <div class="l-greet">下午好！</div>
