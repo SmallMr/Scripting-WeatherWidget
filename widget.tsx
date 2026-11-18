@@ -1,4 +1,5 @@
 import {
+  Canvas,
   HStack,
   Image,
   Rectangle,
@@ -30,17 +31,18 @@ const REFRESH_MINUTES = 30
 type DynamicColor = { light: string; dark: string }
 
 const C = {
-  bg: { light: "#F1F5FA", dark: "#0B1016" } as DynamicColor,
-  card: { light: "rgba(255,255,255,0.78)", dark: "rgba(255,255,255,0.07)" } as DynamicColor,
-  chip: { light: "rgba(15,23,42,0.05)", dark: "rgba(255,255,255,0.08)" } as DynamicColor,
-  text: { light: "#0F172A", dark: "#F8FAFC" } as DynamicColor,
-  sub: { light: "#64748B", dark: "#94A3B8" } as DynamicColor,
-  line: { light: "rgba(15,23,42,0.08)", dark: "rgba(255,255,255,0.10)" } as DynamicColor,
-  blue: "#3B82F6",
-  cyan: "#06B6D4",
-  amber: "#F59E0B",
-  violet: "#8B5CF6",
-  red: "#EF4444",
+  bg: { light: "#FFFFFF", dark: "#000000" } as DynamicColor,
+  card: { light: "rgba(0,0,0,0.04)", dark: "rgba(255,255,255,0.08)" } as DynamicColor,
+  chip: { light: "rgba(0,0,0,0.04)", dark: "rgba(255,255,255,0.08)" } as DynamicColor,
+  text: { light: "#1C1C1E", dark: "#F2F2F7" } as DynamicColor,
+  sub: { light: "#8E8E93", dark: "#AEAEB2" } as DynamicColor,
+  line: { light: "rgba(0,0,0,0.08)", dark: "rgba(255,255,255,0.12)" } as DynamicColor,
+  blue: "#0A84FF",
+  cyan: "#32ADE6",
+  amber: "#FF9500",
+  violet: "#BF5AF2",
+  red: "#FF3B30",
+  green: "#34C759",
 }
 
 const WEEKDAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"]
@@ -377,11 +379,11 @@ function buildModel(data: any, fallbackCity: string, seven: DayInfo[] | null): W
   const zs = (data.dataZS && data.dataZS.zs) || {}
   const lifeSpecs: Array<[string, string]> = [
     ["ct", "穿衣"],
-    ["ys", "雨伞"],
-    ["uv", "紫外线"],
-    ["yd", "运动"],
     ["xc", "洗车"],
+    ["uv", "紫外线"],
     ["gm", "感冒"],
+    ["ys", "雨伞"],
+    ["yd", "运动"],
   ]
   const life: LifeInfo[] = []
   for (const [key, label] of lifeSpecs) {
@@ -393,7 +395,7 @@ function buildModel(data: any, fallbackCity: string, seven: DayInfo[] | null): W
         des: String(zs[`${key}_des_s`] || ""),
       })
     }
-    if (life.length >= 4) break
+    if (life.length >= 6) break
   }
 
   return {
@@ -470,6 +472,160 @@ function greetingFor(hour: number): string {
 function windText(model: WeatherModel): string {
   const text = `${model.windDir || ""} ${model.windScale || ""}`.trim()
   return text || "微风"
+}
+
+function formatTemp(value: string | number): string {
+  const number = parseFloat(String(value))
+  if (!Number.isFinite(number)) return "--"
+  return Number.isInteger(number) ? String(number) : number.toFixed(1)
+}
+
+function humidityText(value: string): string {
+  const text = String(value || "").trim()
+  if (!text) return "--"
+  return text.includes("%") ? text : `${text}%`
+}
+
+function getNextTwoHolidays(): Array<{ name: string; md: string }> {
+  const now = new Date()
+  const year = now.getFullYear()
+  const holidays = [
+    { m: 1, d: 1, name: "元旦" },
+    { m: 2, d: 17, name: "春节", y: 2026 },
+    { m: 2, d: 6, name: "春节", y: 2027 },
+    { m: 3, d: 3, name: "元宵节", y: 2026 },
+    { m: 5, d: 1, name: "劳动节" },
+    { m: 6, d: 19, name: "端午节", y: 2026 },
+    { m: 6, d: 9, name: "端午节", y: 2027 },
+    { m: 8, d: 19, name: "七夕节", y: 2026 },
+    { m: 9, d: 25, name: "中秋节", y: 2026 },
+    { m: 9, d: 15, name: "中秋节", y: 2027 },
+    { m: 10, d: 18, name: "重阳节", y: 2026 },
+    { m: 10, d: 1, name: "国庆节" },
+    { m: 12, d: 25, name: "圣诞节" },
+    { m: 2, d: 4, name: "立春" },
+    { m: 2, d: 19, name: "雨水" },
+    { m: 3, d: 5, name: "惊蛰" },
+    { m: 3, d: 20, name: "春分" },
+    { m: 4, d: 4, name: "清明" },
+    { m: 4, d: 20, name: "谷雨" },
+    { m: 5, d: 5, name: "立夏" },
+    { m: 5, d: 21, name: "小满" },
+    { m: 6, d: 5, name: "芒种" },
+    { m: 6, d: 21, name: "夏至" },
+    { m: 7, d: 7, name: "小暑" },
+    { m: 7, d: 22, name: "大暑" },
+    { m: 8, d: 7, name: "立秋" },
+    { m: 8, d: 23, name: "处暑" },
+    { m: 9, d: 7, name: "白露" },
+    { m: 9, d: 23, name: "秋分" },
+    { m: 10, d: 8, name: "寒露" },
+    { m: 10, d: 23, name: "霜降" },
+    { m: 11, d: 7, name: "立冬" },
+    { m: 11, d: 22, name: "小雪" },
+    { m: 12, d: 7, name: "大雪" },
+    { m: 12, d: 21, name: "冬至" },
+    { m: 1, d: 5, name: "小寒" },
+    { m: 1, d: 20, name: "大寒" },
+  ]
+
+  const list: Array<{ name: string; dt: Date }> = []
+  for (const holiday of holidays) {
+    for (const candidateYear of [year, year + 1]) {
+      if (holiday.y && holiday.y !== candidateYear) continue
+      const dt = new Date(candidateYear, holiday.m - 1, holiday.d)
+      const days = Math.ceil((dt.getTime() - now.getTime()) / 86400000)
+      if (days >= 0) list.push({ name: holiday.name, dt })
+    }
+  }
+
+  list.sort((a, b) => a.dt.getTime() - b.dt.getTime())
+  const seen = new Set<string>()
+  const result: Array<{ name: string; md: string }> = []
+  for (const item of list) {
+    if (seen.has(item.name)) continue
+    seen.add(item.name)
+    result.push({
+      name: item.name,
+      md: `${String(item.dt.getMonth() + 1).padStart(2, "0")}-${String(item.dt.getDate()).padStart(2, "0")}`,
+    })
+    if (result.length >= 2) break
+  }
+  return result
+}
+
+function AnalogClock({ size }: { size: number }) {
+  const now = new Date()
+  const hour = now.getHours() % 12
+  const minute = now.getMinutes()
+  const second = now.getSeconds()
+
+  return (
+    <Canvas
+      frame={{ width: size, height: size }}
+      opaque={false}
+      draw={(ctx: any, canvasSize: { width: number; height: number }) => {
+        const cx = canvasSize.width / 2
+        const cy = canvasSize.height / 2
+        const radius = Math.min(cx, cy) - 3
+
+        ctx.strokeStyle = "secondaryLabel"
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+        ctx.stroke()
+
+        for (let index = 0; index < 60; index++) {
+          const angle = ((index * 6 - 90) * Math.PI) / 180
+          const isHour = index % 5 === 0
+          const inner = radius - (isHour ? 7 : 4)
+          ctx.strokeStyle = "label"
+          ctx.lineWidth = isHour ? 2 : 1
+          ctx.beginPath()
+          ctx.moveTo(cx + inner * Math.cos(angle), cy + inner * Math.sin(angle))
+          ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle))
+          ctx.stroke()
+        }
+
+        ctx.fillStyle = "label"
+        ctx.font = 10
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+        for (let number = 1; number <= 12; number++) {
+          const angle = ((number * 30 - 90) * Math.PI) / 180
+          const numberRadius = radius - 11
+          ctx.fillText(
+            String(number),
+            cx + numberRadius * Math.cos(angle),
+            cy + numberRadius * Math.sin(angle),
+          )
+        }
+
+        const drawHand = (angle: number, length: number, width: number, color: string) => {
+          ctx.strokeStyle = color
+          ctx.lineWidth = width
+          ctx.lineCap = "round"
+          ctx.beginPath()
+          ctx.moveTo(cx, cy)
+          ctx.lineTo(cx + length * Math.cos(angle), cy + length * Math.sin(angle))
+          ctx.stroke()
+        }
+
+        const hourAngle = ((hour + minute / 60) * 30 - 90) * (Math.PI / 180)
+        const minuteAngle = ((minute + second / 60) * 6 - 90) * (Math.PI / 180)
+        const secondAngle = (second * 6 - 90) * (Math.PI / 180)
+
+        drawHand(hourAngle, radius * 0.47, 4, "label")
+        drawHand(minuteAngle, radius * 0.72, 3, "label")
+        drawHand(secondAngle, radius * 0.8, 1.5, C.amber)
+
+        ctx.fillStyle = C.amber
+        ctx.beginPath()
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2)
+        ctx.fill()
+      }}
+    />
+  )
 }
 
 /* ------------------------------------------------------------------
@@ -663,33 +819,81 @@ function MediumWidget({ model }: { model: WeatherModel }) {
  * 大尺寸
  * ------------------------------------------------------------------ */
 
-function LargeDayRow({ day }: { day: DayInfo }) {
-  const icon = iconForCode(day.codeDay)
+function WeekStrip({ date }: { date: Date }) {
+  const widgetWidth = Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364
+  const cellWidth = (widgetWidth - 24) / 7
+  const labels = ["一", "二", "三", "四", "五", "六", "日"]
+  const monday = new Date(date)
+  monday.setDate(date.getDate() - ((date.getDay() + 6) % 7))
+
   return (
-    <HStack spacing={6} padding={{ vertical: 4 }}>
-      <Text font={11} foregroundStyle={C.sub} lineLimit={1} frame={{ width: 32 }}>
-        {day.week || day.date}
+    <HStack spacing={0}>
+      {labels.map((label, index) => {
+        const day = new Date(monday)
+        day.setDate(monday.getDate() + index)
+        const isToday =
+          day.getFullYear() === date.getFullYear() &&
+          day.getMonth() === date.getMonth() &&
+          day.getDate() === date.getDate()
+
+        return (
+          <VStack key={label} alignment="center" spacing={1} frame={{ width: cellWidth }}>
+            <Text font={10} foregroundStyle={C.sub} lineLimit={1}>
+              {label}
+            </Text>
+            <ZStack alignment="center" frame={{ width: 34, height: 26 }}>
+              {isToday ? (
+                <RoundedRectangle
+                  cornerRadius={10}
+                  fill={{ light: "rgba(255,59,48,0.14)", dark: "rgba(255,69,58,0.20)" }}
+                />
+              ) : null}
+              <Text
+                font={15}
+                fontWeight="semibold"
+                foregroundStyle={isToday ? C.red : C.text}
+                lineLimit={1}
+              >
+                {day.getDate()}
+              </Text>
+            </ZStack>
+          </VStack>
+        )
+      })}
+    </HStack>
+  )
+}
+
+function NextDayCard({
+  label,
+  day,
+  width,
+}: {
+  label: string
+  day?: DayInfo
+  width: number
+}) {
+  if (!day) {
+    return <HStack frame={{ width }} />
+  }
+  const icon = iconForCode(day.codeDay)
+
+  return (
+    <HStack alignment="center" spacing={6} frame={{ width }}>
+      <Text font={13} foregroundStyle={C.sub} lineLimit={1}>
+        {label}
       </Text>
       <Image
         systemName={icon.symbol}
         resizable
         scaleToFit
-        frame={{ width: 15, height: 15 }}
+        frame={{ width: 22, height: 22 }}
         foregroundStyle={icon.color}
       />
-      <Text font={11} foregroundStyle={C.text} lineLimit={1} frame={{ width: 62 }}>
-        {day.textDay || "—"}
+      <Text font={13} fontWeight="semibold" foregroundStyle={C.text} lineLimit={1}>
+        {day.tempMin ? `${day.tempMin}°-${day.tempMax}°` : "--"}
       </Text>
       <Spacer />
-      <Text font={11} foregroundStyle={C.sub} lineLimit={1}>
-        {day.tempMin ? `${day.tempMin}°` : "--"}
-      </Text>
-      <Text font={10} foregroundStyle={C.sub}>
-        /
-      </Text>
-      <Text font={11} fontWeight="semibold" foregroundStyle={C.text} lineLimit={1}>
-        {day.tempMax ? `${day.tempMax}°` : "--"}
-      </Text>
     </HStack>
   )
 }
@@ -698,15 +902,15 @@ function LifeChip({ item, width }: { item: LifeInfo; width: number }) {
   return (
     <VStack
       alignment="leading"
-      spacing={1}
-      padding={8}
+      spacing={2}
+      padding={{ horizontal: 8, vertical: 6 }}
       frame={{ width }}
       background={<RoundedRectangle cornerRadius={10} fill={C.chip} />}
     >
-      <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
+      <Text font={11} foregroundStyle={C.sub} lineLimit={1}>
         {item.label}
       </Text>
-      <Text font={12} fontWeight="semibold" foregroundStyle={C.text} lineLimit={1}>
+      <Text font={13} fontWeight="semibold" foregroundStyle={C.text} lineLimit={1}>
         {item.hint}
       </Text>
     </VStack>
@@ -716,97 +920,128 @@ function LifeChip({ item, width }: { item: LifeInfo; width: number }) {
 function LargeWidget({ model, name }: { model: WeatherModel; name: string }) {
   const icon = iconForText(model.weather)
   const today = model.daily[0]
+  const tomorrow = model.daily[1]
+  const dayAfter = model.daily[2]
   const now = new Date()
-  const dateLabel = `${now.getMonth() + 1}月${now.getDate()}日 · ${WEEKDAYS[now.getDay()]}`
   const greet = greetingFor(now.getHours())
-  const widgetWidth = Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 338
-  const lifeCount = Math.min(4, model.life.length)
-  const lifeWidth = lifeCount
-    ? Math.max(56, Math.min(72, Math.floor((widgetWidth - 28 - 6 * (lifeCount - 1)) / lifeCount)))
-    : 70
-  const tipItem = model.life.find((item) => item.label === "雨伞") || model.life[0]
-  const tip = tipItem ? tipItem.des : ""
+  const greeting = name ? `${name}，${greet}！` : `${greet}！`
+  const schedules = getNextTwoHolidays()
+  const widgetWidth = Widget.displaySize && Widget.displaySize.width ? Widget.displaySize.width : 364
+  const contentWidth = widgetWidth - 24
+  const lifeItems = model.life.slice(0, 4)
+  const lifeWidth = lifeItems.length
+    ? Math.floor((contentWidth - 6 * (lifeItems.length - 1)) / lifeItems.length)
+    : 0
 
   return (
-    <VStack alignment="leading" spacing={6} padding={14}>
-      <HStack alignment="center">
-        <VStack alignment="leading" spacing={1}>
-          <Text font={17} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
-            {dateLabel}
+    <VStack alignment="leading" spacing={8} padding={12}>
+      <HStack alignment="center" spacing={4}>
+        <VStack alignment="leading" spacing={4} frame={{ width: 120 }}>
+          <Text font={22} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
+            {now.getFullYear()} {now.getMonth() + 1}月
           </Text>
-          <Text font={10} foregroundStyle={C.sub} lineLimit={1}>
-            {name ? `${name}，${greet}` : greet}
+
+          <HStack
+            spacing={0}
+            padding={{ horizontal: 8, vertical: 2 }}
+            background={
+              <RoundedRectangle
+                cornerRadius={6}
+                fill={{ light: "rgba(175,82,222,0.15)", dark: "rgba(191,90,242,0.19)" }}
+              />
+            }
+          >
+            <Text
+              font={12}
+              fontWeight="bold"
+              foregroundStyle={{ light: "#AF52DE", dark: "#BF5AF2" }}
+              lineLimit={1}
+            >
+              日程
+            </Text>
+          </HStack>
+
+          {schedules.map((schedule, index) => (
+            <HStack key={`${schedule.name}-${schedule.md}`} spacing={6}>
+              <RoundedRectangle
+                cornerRadius={2}
+                frame={{ width: 3, height: 28 }}
+                fill={
+                  index === 0
+                    ? { light: "rgba(52,199,89,0.38)", dark: "rgba(48,209,88,0.38)" }
+                    : { light: "rgba(255,149,0,0.38)", dark: "rgba(255,159,10,0.38)" }
+                }
+              />
+              <Text font={13} foregroundStyle={C.text} lineLimit={1}>
+                {schedule.name} {schedule.md}
+              </Text>
+            </HStack>
+          ))}
+        </VStack>
+
+        <Spacer />
+        <AnalogClock size={88} />
+        <Spacer />
+
+        <VStack alignment="center" spacing={0} frame={{ width: 96 }}>
+          <Text font={68} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
+            {now.getDate()}
+          </Text>
+          <Text
+            font={14}
+            fontWeight="semibold"
+            foregroundStyle={C.sub}
+            lineLimit={1}
+          >
+            {greeting}
           </Text>
         </VStack>
-        <Spacer />
-        <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
-          {model.time ? `${model.time} 更新` : ""}
-        </Text>
       </HStack>
 
-      <HStack
-        alignment="center"
-        spacing={10}
-        padding={10}
-        background={<RoundedRectangle cornerRadius={14} fill={C.card} />}
-      >
+      <WeekStrip date={now} />
+
+      <HStack alignment="center" spacing={10}>
         <Image
           systemName={icon.symbol}
           resizable
           scaleToFit
-          frame={{ width: 38, height: 38 }}
+          frame={{ width: 36, height: 36 }}
           foregroundStyle={icon.color}
         />
+        <Text font={36} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
+          {formatTemp(model.temp)}°
+        </Text>
         <VStack alignment="leading" spacing={1}>
-          <HStack alignment="bottom" spacing={5}>
-            <Text font={31} fontWeight="bold" foregroundStyle={C.text} lineLimit={1}>
-              {roundTemp(model.temp)}°
-            </Text>
-            <Text font={12} foregroundStyle={C.sub} lineLimit={1}>
-              {model.weather || "—"}
-            </Text>
-          </HStack>
-          <Text font={10} foregroundStyle={C.sub} lineLimit={1}>
-            {today
-              ? `最高 ${today.tempMax || "--"}° · 最低 ${today.tempMin || "--"}°`
-              : ""}
+          <Text font={14} foregroundStyle={C.sub} lineLimit={1}>
+            {today ? `${today.tempMax || "--"}°-${today.tempMin || "--"}°` : ""}
+          </Text>
+          <Text font={13} foregroundStyle={C.sub} lineLimit={1}>
+            {model.city} {model.weather}
           </Text>
         </VStack>
         <Spacer />
-        <VStack alignment="trailing" spacing={2}>
-          <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
-            湿度 {model.humidity || "—"}
+        <VStack alignment="trailing" spacing={1}>
+          <Text font={12} foregroundStyle={C.sub} lineLimit={1}>
+            AQI {model.aqi || "--"}
           </Text>
-          <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
-            AQI {model.aqi || "—"}
-          </Text>
-          <Text font={9} foregroundStyle={C.sub} lineLimit={1}>
-            {windText(model)}
+          <Text font={12} foregroundStyle={C.sub} lineLimit={1}>
+            湿度{humidityText(model.humidity)}
           </Text>
         </VStack>
       </HStack>
 
-      <VStack spacing={0}>
-        {model.daily.slice(0, 7).map((day) => (
-          <LargeDayRow key={`${day.date}-${day.week}`} day={day} />
-        ))}
-      </VStack>
+      <HStack alignment="center" spacing={16}>
+        <NextDayCard label="明天" day={tomorrow} width={(contentWidth - 16) / 2} />
+        <NextDayCard label="后天" day={dayAfter} width={(contentWidth - 16) / 2} />
+      </HStack>
 
       <Spacer />
-      <Rectangle fill={C.line} frame={{ height: 1 }} />
 
-      {tip ? (
-        <Text font={9} foregroundStyle={C.sub} lineLimit={2}>
-          今日建议 · {tip}
-        </Text>
-      ) : null}
-
-      {model.life.length > 0 ? (
+      {lifeItems.length > 0 ? (
         <HStack spacing={6}>
-          {model.life.slice(0, 4).map((item) => (
+          {lifeItems.map((item) => (
             <LifeChip key={item.label} item={item} width={lifeWidth} />
           ))}
-          <Spacer />
         </HStack>
       ) : null}
     </VStack>
